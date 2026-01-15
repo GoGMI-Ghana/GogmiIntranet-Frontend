@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Eye, Trash2, Archive, Search, X, Upload, Calendar, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,88 +9,8 @@ export default function Assets() {
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Demo assets data
-  const [assets, setAssets] = useState([
-    {
-      id: 1,
-      assetId: 'GOGMI-SR-0008',
-      image: '/api/placeholder/80/80',
-      location: 'Storage Room',
-      product: 'Pull-up banners',
-      model: '—',
-      quantity: 2,
-      status: 'Needs repair',
-      owner: 'Corporate Affairs',
-      purchaseDate: 'Sep 26, 2025',
-      archived: false
-    },
-    {
-      id: 2,
-      assetId: 'GOGMI-SR-0007',
-      image: '/api/placeholder/80/80',
-      location: 'Storage Room',
-      product: 'DOTCAN pull up banner',
-      model: '—',
-      quantity: 1,
-      status: 'In good condition',
-      owner: 'Corporate Affairs',
-      purchaseDate: 'Sep 26, 2025',
-      archived: false
-    },
-    {
-      id: 3,
-      assetId: 'GOGMI-SR-0006',
-      image: '/api/placeholder/80/80',
-      location: 'Storage Room',
-      product: 'GoGMI Membership pull up banner',
-      model: '—',
-      quantity: 1,
-      status: 'In good condition',
-      owner: 'Corporate Affairs',
-      purchaseDate: 'Sep 26, 2025',
-      archived: false
-    },
-    {
-      id: 4,
-      assetId: 'GOGMI-SR-0005',
-      image: '/api/placeholder/80/80',
-      location: 'Storage Room',
-      product: 'GoGMI pull up banner',
-      model: '—',
-      quantity: 1,
-      status: 'In good condition',
-      owner: 'Corporate Affairs',
-      purchaseDate: 'Sep 26, 2025',
-      archived: false
-    },
-    {
-      id: 5,
-      assetId: 'GOGMI-SR-0004',
-      image: '/api/placeholder/80/80',
-      location: 'Storage Room',
-      product: 'Air Conditioner',
-      model: 'Roch',
-      quantity: 1,
-      status: 'In good condition',
-      owner: 'Corporate Affairs',
-      purchaseDate: 'Sep 26, 2025',
-      archived: false
-    },
-    {
-      id: 6,
-      assetId: 'GOGMI-SR-0003',
-      image: '/api/placeholder/80/80',
-      location: 'Storage Room',
-      product: 'Study Chair',
-      model: '—',
-      quantity: 30,
-      status: 'In good condition',
-      owner: 'Corporate Affairs',
-      purchaseDate: 'Sep 26, 2025',
-      archived: false
-    }
-  ]);
+  const [assets, setAssets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     location: '',
@@ -103,23 +23,45 @@ export default function Assets() {
     image: null
   });
 
-  // Filter assets based on active tab
+  useEffect(() => {
+    fetchAssets();
+  }, []);
+
+  const fetchAssets = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:5000/api/assets');
+      const data = await response.json();
+
+      if (data.success) {
+        setAssets(data.assets);
+      }
+    } catch (error) {
+      console.error('Error fetching assets:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredAssets = assets.filter(asset => {
-    const matchesTab = activeTab === 'current' ? !asset.archived : asset.archived;
-    const matchesSearch = asset.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          asset.assetId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          asset.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesTab = activeTab === 'current' ? asset.status !== 'Disposed' : asset.status === 'Disposed';
+    const matchesSearch = 
+      asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      asset.assetId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (asset.location && asset.location.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesTab && matchesSearch;
   });
 
   const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case 'in good condition':
+    switch (status) {
+      case 'Active':
         return 'bg-green-100 text-green-800';
-      case 'needs repair':
-        return 'bg-red-100 text-red-800';
-      case 'under maintenance':
+      case 'Under Maintenance':
         return 'bg-yellow-100 text-yellow-800';
+      case 'Inactive':
+        return 'bg-gray-100 text-gray-800';
+      case 'Disposed':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -137,49 +79,94 @@ export default function Assets() {
     }
   };
 
-  const handleUpload = () => {
-    // TODO: Connect to backend API
-    const newAsset = {
-      id: assets.length + 1,
-      assetId: `GOGMI-SR-${String(assets.length + 1).padStart(4, '0')}`,
-      image: formData.image || '/api/placeholder/80/80',
-      location: formData.location,
-      product: formData.product,
-      model: formData.model || '—',
-      quantity: parseInt(formData.quantity),
-      status: formData.status,
-      owner: formData.owner,
-      purchaseDate: new Date(formData.purchaseDate).toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
-      }),
-      archived: false
-    };
+  const handleUpload = async () => {
+    try {
+      const payload = {
+        name: formData.product,
+        category: formData.owner,
+        serialNumber: formData.model,
+        purchaseDate: formData.purchaseDate,
+        location: formData.location,
+        status: formData.status === 'In good condition' ? 'Active' : 
+                formData.status === 'Needs repair' ? 'Under Maintenance' : 'Active',
+        condition: formData.status === 'In good condition' ? 'Good' : 
+                   formData.status === 'Needs repair' ? 'Poor' : 'Good',
+        notes: `Quantity: ${formData.quantity}`
+      };
 
-    setAssets([newAsset, ...assets]);
-    setShowUploadModal(false);
-    setFormData({
-      location: '',
-      product: '',
-      model: '',
-      quantity: 1,
-      status: '',
-      owner: '',
-      purchaseDate: '',
-      image: null
-    });
+      const response = await fetch('http://localhost:5000/api/assets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        await fetchAssets();
+        setShowUploadModal(false);
+        setFormData({
+          location: '',
+          product: '',
+          model: '',
+          quantity: 1,
+          status: '',
+          owner: '',
+          purchaseDate: '',
+          image: null
+        });
+        alert('Asset created successfully with ID: ' + data.asset.assetId);
+      } else {
+        alert('Error creating asset: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error creating asset:', error);
+      alert('Error creating asset');
+    }
   };
 
-  const handleArchive = (id) => {
-    setAssets(assets.map(asset => 
-      asset.id === id ? { ...asset, archived: !asset.archived } : asset
-    ));
+  const handleArchive = async (id, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'Disposed' ? 'Active' : 'Disposed';
+      
+      const response = await fetch(`http://localhost:5000/api/assets/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        await fetchAssets();
+      }
+    } catch (error) {
+      console.error('Error updating asset:', error);
+    }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this asset?')) {
-      setAssets(assets.filter(asset => asset.id !== id));
+      try {
+        const response = await fetch(`http://localhost:5000/api/assets/${id}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          await fetchAssets();
+          if (showViewModal) {
+            setShowViewModal(false);
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting asset:', error);
+      }
     }
   };
 
@@ -188,9 +175,23 @@ export default function Assets() {
     setShowViewModal(true);
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const getQuantity = (notes) => {
+    if (!notes) return 1;
+    const match = notes.match(/Quantity: (\d+)/);
+    return match ? match[1] : 1;
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
       <div className="p-8 pb-6 bg-gradient-to-r from-gray-700 to-gray-800">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
@@ -223,10 +224,8 @@ export default function Assets() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="px-8 pb-8">
         <div className="bg-white rounded-xl shadow-xl">
-          {/* Tabs and Search */}
           <div className="border-b border-gray-200">
             <div className="flex items-center justify-between p-6">
               <div className="flex space-x-1">
@@ -252,7 +251,6 @@ export default function Assets() {
                 </button>
               </div>
 
-              {/* Search */}
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -266,7 +264,6 @@ export default function Assets() {
             </div>
           </div>
 
-          {/* Assets Count */}
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-800">
@@ -278,100 +275,107 @@ export default function Assets() {
             </div>
           </div>
 
-          {/* Assets Table */}
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Image
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Asset ID
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Location
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Model
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Qty
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Owner/Dept
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Purchased
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredAssets.map((asset) => (
-                  <tr key={asset.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <img
-                        src={asset.image}
-                        alt={asset.product}
-                        className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium">
-                        {asset.assetId}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{asset.location}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">{asset.product}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{asset.model}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{asset.quantity}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(asset.status)}`}>
-                        {asset.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{asset.owner}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{asset.purchaseDate}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleView(asset)}
-                          className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                          title="View details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleArchive(asset.id)}
-                          className="p-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-                          title={asset.archived ? "Unarchive" : "Archive"}
-                        >
-                          <Archive className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(asset.id)}
-                          className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-700 mx-auto mb-4"></div>
+                <p className="text-gray-500">Loading assets...</p>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Image
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Asset ID
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Location
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Product
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Model
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Qty
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Owner/Dept
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Purchased
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredAssets.map((asset) => (
+                    <tr key={asset.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4">
+                        <img
+                          src="/api/placeholder/80/80"
+                          alt={asset.name}
+                          className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium">
+                          {asset.assetId}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{asset.location || '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">{asset.name}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{asset.serialNumber || '—'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{getQuantity(asset.notes)}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(asset.status)}`}>
+                          {asset.condition === 'Good' ? 'In good condition' : 
+                           asset.condition === 'Poor' ? 'Needs repair' : asset.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{asset.category || '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{formatDate(asset.purchaseDate)}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleView(asset)}
+                            className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            title="View details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleArchive(asset.id, asset.status)}
+                            className="p-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                            title={asset.status === 'Disposed' ? "Unarchive" : "Archive"}
+                          >
+                            <Archive className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(asset.id)}
+                            className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
 
-            {filteredAssets.length === 0 && (
+            {!loading && filteredAssets.length === 0 && (
               <div className="text-center py-12">
                 <Archive className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500 text-lg">No assets found</p>
@@ -384,13 +388,14 @@ export default function Assets() {
         </div>
       </div>
 
-      {/* Upload Asset Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">Upload Asset</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Upload Asset</h2>
+                <p className="text-sm text-gray-500 mt-1">Asset ID will be auto-generated (AST-001, AST-002...)</p>
+              </div>
               <button
                 onClick={() => setShowUploadModal(false)}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -399,9 +404,7 @@ export default function Assets() {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-6 space-y-4">
-              {/* Row 1: Location and Product */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -415,9 +418,19 @@ export default function Assets() {
                   >
                     <option value="">Select Location</option>
                     <option value="Storage Room">Storage Room</option>
-                    <option value="Office">Office</option>
+                    <option value="Main Office">Main Office</option>
+                    <option value="Executive Office">Executive Office</option>
                     <option value="Conference Room">Conference Room</option>
                     <option value="Reception">Reception</option>
+                    <option value="IT Department">IT Department</option>
+                    <option value="Finance Department">Finance Department</option>
+                    <option value="HR Department">HR Department</option>
+                    <option value="Warehouse">Warehouse</option>
+                    <option value="Cafeteria">Cafeteria</option>
+                    <option value="Parking Lot">Parking Lot</option>
+                    <option value="Server Room">Server Room</option>
+                    <option value="Archive Room">Archive Room</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div>
@@ -435,7 +448,6 @@ export default function Assets() {
                 </div>
               </div>
 
-              {/* Row 2: Model, Quantity, Status */}
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -481,11 +493,10 @@ export default function Assets() {
                 </div>
               </div>
 
-              {/* Row 3: Owner and Purchase Date */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Owner/Department
+                    Assigned To (Department)
                   </label>
                   <select
                     name="owner"
@@ -493,7 +504,7 @@ export default function Assets() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="">Select Owner/Department</option>
+                    <option value="">Select Department</option>
                     <option value="General">General</option>
                     <option value="Admin & Finance">Admin & Finance</option>
                     <option value="Technical">Technical</option>
@@ -515,7 +526,6 @@ export default function Assets() {
                 </div>
               </div>
 
-              {/* Product Image */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Product Image (Optional)
@@ -549,7 +559,6 @@ export default function Assets() {
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
               <button
                 onClick={() => setShowUploadModal(false)}
@@ -568,11 +577,9 @@ export default function Assets() {
         </div>
       )}
 
-      {/* View Asset Modal */}
       {showViewModal && selectedAsset && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
-            {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-900">Asset Details</h2>
               <button
@@ -583,59 +590,56 @@ export default function Assets() {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-6">
               <div className="grid grid-cols-2 gap-6">
-                {/* Image */}
                 <div className="col-span-2">
                   <img
-                    src={selectedAsset.image}
-                    alt={selectedAsset.product}
+                    src="/api/placeholder/400/300"
+                    alt={selectedAsset.name}
                     className="w-full h-64 object-cover rounded-lg border border-gray-200"
                   />
                 </div>
 
-                {/* Details */}
                 <div>
                   <label className="text-sm font-medium text-gray-500">Asset ID</label>
                   <p className="text-lg font-semibold text-gray-900">{selectedAsset.assetId}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Location</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.location}</p>
+                  <p className="text-lg text-gray-900">{selectedAsset.location || '-'}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Product</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.product}</p>
+                  <p className="text-lg text-gray-900">{selectedAsset.name}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Model</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.model}</p>
+                  <p className="text-lg text-gray-900">{selectedAsset.serialNumber || '—'}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Quantity</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.quantity}</p>
+                  <p className="text-lg text-gray-900">{getQuantity(selectedAsset.notes)}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Status</label>
                   <p>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedAsset.status)}`}>
-                      {selectedAsset.status}
+                      {selectedAsset.condition === 'Good' ? 'In good condition' : 
+                       selectedAsset.condition === 'Poor' ? 'Needs repair' : selectedAsset.status}
                     </span>
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Owner/Department</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.owner}</p>
+                  <label className="text-sm font-medium text-gray-500">Assigned To (Department)</label>
+                  <p className="text-lg text-gray-900">{selectedAsset.category || '-'}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Purchase Date</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.purchaseDate}</p>
+                  <p className="text-lg text-gray-900">{formatDate(selectedAsset.purchaseDate)}</p>
                 </div>
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
               <button
                 onClick={() => setShowViewModal(false)}

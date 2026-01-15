@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Lock, User, IdCard, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Lock, Mail, IdCard, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    employeeId: '',
-    username: '',
+    email: '',
     password: ''
   });
   const [error, setError] = useState('');
@@ -26,7 +25,7 @@ export default function Login() {
     setError('');
     setLoading(true);
 
-    if (!formData.employeeId || !formData.username || !formData.password) {
+    if (!formData.email || !formData.password) {
       setError('All fields are required');
       setLoading(false);
       return;
@@ -39,7 +38,7 @@ export default function Login() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: formData.username,
+          email: formData.email,
           password: formData.password
         })
       });
@@ -66,7 +65,6 @@ export default function Login() {
         background: 'linear-gradient(135deg, #132552 0%, #1a3a6b 50%, #132552 100%)'
       }}>
       
-      {/* Background Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 opacity-20 rounded-full blur-3xl" 
           style={{ background: '#8e3400' }}></div>
@@ -75,7 +73,6 @@ export default function Login() {
         <div className="absolute top-1/2 left-1/3 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Logo - Top Right */}
       <div className="absolute top-8 right-8 z-20">
         <div className="w-14 h-14 rounded-xl flex items-center justify-center"
           style={{
@@ -87,7 +84,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Left Side - Welcome Section */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -122,7 +118,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Side - Login Box */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative z-10">
         <div className="w-full max-w-md">
           
@@ -151,19 +146,18 @@ export default function Login() {
                 </div>
               )}
 
-              {/* Employee ID */}
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">
-                  Employee ID
+                  Email Address
                 </label>
                 <div className="relative">
-                  <IdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
-                    type="text"
-                    name="employeeId"
-                    value={formData.employeeId}
+                    type="email"
+                    name="email"
+                    value={formData.email}
                     onChange={handleChange}
-                    placeholder="EMP-XXX-XXX"
+                    placeholder="your.email@gogmi.com"
                     className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg text-white placeholder-white/30 focus:outline-none transition-all"
                     style={{
                       background: 'rgba(255, 255, 255, 0.1)',
@@ -177,33 +171,6 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Username */}
-              <div>
-                <label className="block text-xs font-medium text-white/70 mb-1.5">
-                  User Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    placeholder="TechTree"
-                    className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg text-white placeholder-white/30 focus:outline-none transition-all"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)'
-                    }}
-                    onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(142, 52, 0, 0.5)'}
-                    onBlur={(e) => e.target.style.boxShadow = 'none'}
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
               <div>
                 <label className="block text-xs font-medium text-white/70 mb-1.5">
                   Password
@@ -236,11 +203,19 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Submit Button */}
+              <div className="text-right">
+                <Link 
+                  to="/forgot-password" 
+                  className="text-xs text-white/70 hover:text-white transition-colors inline-block"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-6 rounded-lg font-semibold text-white text-sm shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-5"
+                className="w-full py-2.5 px-6 rounded-lg font-semibold text-white text-sm shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: loading 
                     ? 'rgba(255, 255, 255, 0.2)' 
@@ -250,7 +225,6 @@ export default function Login() {
                 {loading ? 'Signing in...' : 'Submit'}
               </button>
 
-              {/* Social Icons */}
               <div className="flex justify-center gap-3 mt-4 pt-2">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all hover:opacity-80"
                   style={{
@@ -275,9 +249,6 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* ============================================
-                  REQUEST ACCESS LINK - NEW!
-                  ============================================ */}
               <div className="mt-6 text-center pt-4 border-t border-white/10">
                 <p className="text-white/60 text-sm">
                   Don't have an account?{' '}
@@ -293,14 +264,13 @@ export default function Login() {
               </div>
             </form>
 
-            {/* Demo Credentials */}
             <div className="mt-4 p-3 rounded-lg text-center"
               style={{
                 background: 'rgba(19, 37, 82, 0.4)',
                 border: '1px solid rgba(255, 255, 255, 0.1)'
               }}>
               <p className="text-xs text-white/60">
-                Demo: <span className="text-white/80 font-medium">sarah_tech</span> / password123
+                Demo: <span className="text-white/80 font-medium">admin@gogmi.com</span> / admin123
               </p>
             </div>
           </div>

@@ -17,6 +17,10 @@ export default function Dashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
 
+  // Employees States
+  const [employees, setEmployees] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(true);
+
   // Get user data from localStorage
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -24,29 +28,23 @@ export default function Dashboard() {
   useEffect(() => {
     fetchAnnouncements();
     fetchLeaveBalance();
+    fetchEmployees();
   }, []);
 
   // Fetch announcements function
   const fetchAnnouncements = async () => {
-    console.log('🔄 Fetching announcements...');
     setLoadingAnnouncements(true);
     try {
       const response = await fetch('http://localhost:5000/api/announcements');
-      console.log('📡 Response status:', response.status);
       const data = await response.json();
-      console.log('📦 Received data:', data);
       
       if (data.success) {
-        console.log('✅ Setting announcements:', data.announcements.slice(0, 3));
         setAnnouncements(data.announcements.slice(0, 3));
-      } else {
-        console.log('❌ API returned success: false');
       }
     } catch (error) {
-      console.error('❌ Error fetching announcements:', error);
+      console.error('Error fetching announcements:', error);
     } finally {
       setLoadingAnnouncements(false);
-      console.log('✅ Loading finished');
     }
   };
 
@@ -68,6 +66,23 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Error fetching leave balance:', error);
+    }
+  };
+
+  // Fetch employees function
+  const fetchEmployees = async () => {
+    setLoadingEmployees(true);
+    try {
+      const response = await fetch('http://localhost:5000/api/users');
+      const data = await response.json();
+      
+      if (data.success) {
+        setEmployees(data.users);
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+    } finally {
+      setLoadingEmployees(false);
     }
   };
 
@@ -134,13 +149,6 @@ export default function Dashboard() {
     }
   ];
 
-  const employees = [
-    { id: 1, name: 'Jonas Aryeh', role: 'Head Of Corporate Affairs', avatar: 'JA', color: 'bg-pink-500' },
-    { id: 2, name: 'Caleb Harrisson', role: 'Research Manager', avatar: 'CH', color: 'bg-pink-500' },
-    { id: 3, name: 'Rhodalyn Owusu', role: 'HR Consultant', avatar: 'RO', color: 'bg-pink-500' },
-    { id: 4, name: 'Julliet O.A', role: 'CTO', avatar: 'JO', color: 'bg-pink-500' }
-  ];
-
   const birthdays = [
     { name: 'Enoch Nii', date: 'Dec 7th', avatar: 'EN', color: 'bg-pink-500' },
     { name: 'Paa Boamah', date: 'Dec 12th', avatar: 'PB', color: 'bg-pink-500' },
@@ -165,9 +173,16 @@ export default function Dashboard() {
     { title: 'Learning and Growth', progress: 0, updated: 'Thursday, Dec 18, 2025 at 06:37 pm' }
   ];
 
+  // Helper function to get initials
+  const getInitials = (name) => {
+    if (!name) return '??';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  // Filter employees based on search query
   const filteredEmployees = employees.filter(emp => 
     emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    emp.role.toLowerCase().includes(searchQuery.toLowerCase())
+    (emp.position && emp.position.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   // Category color function for announcements
@@ -236,16 +251,13 @@ export default function Dashboard() {
     }
   };
 
-  console.log('🎨 Rendering Dashboard. Announcements:', announcements);
-  console.log('⏳ Loading:', loadingAnnouncements);
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Welcome Banner */}
       <div className="text-white shadow-lg" style={{ backgroundColor: '#132552' }}>
         <div className="container mx-auto px-6 py-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-1 uppercase">
-            WELCOME BACK, {userData.name?.toUpperCase() || 'EMPLOYEE'} 👋
+            WELCOME BACK, {userData.name?.toUpperCase() || 'EMPLOYEE'}
           </h1>
           <p className="text-blue-100">
             {userData.position || 'Employee'}
@@ -478,17 +490,26 @@ export default function Dashboard() {
                   />
                 </div>
                 <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {filteredEmployees.map(emp => (
-                    <div key={emp.id} className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 ${emp.color} rounded-full flex items-center justify-center text-white font-semibold text-sm`}>
-                        {emp.avatar}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{emp.name}</p>
-                        <p className="text-xs text-gray-500 truncate">{emp.role}</p>
-                      </div>
+                  {loadingEmployees ? (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-700 mx-auto"></div>
+                      <p className="text-xs text-gray-500 mt-2">Loading...</p>
                     </div>
-                  ))}
+                  ) : filteredEmployees.length > 0 ? (
+                    filteredEmployees.map(emp => (
+                      <div key={emp.id} className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                          {getInitials(emp.name)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">{emp.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{emp.position || 'Employee'}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-gray-500 text-center py-4">No employees found</p>
+                  )}
                 </div>
               </div>
 

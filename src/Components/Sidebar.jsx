@@ -53,7 +53,6 @@ export default function Sidebar({ isOpen, onClose }) {
     }
   ];
 
-  // ✅ UPDATED: No icons, professional colors, Request Leave works
   const quickActions = [
     { label: 'Request Leave', action: () => navigate('/general/my-leave') },
     { label: 'Set KPI Goals', action: () => console.log('Set KPI') },
@@ -149,7 +148,7 @@ export default function Sidebar({ isOpen, onClose }) {
               </div>
             </div>
 
-            {/* Quick Actions Section - UPDATED: No icons, professional gray colors */}
+            {/* Quick Actions Section */}
             <div className="px-4 mb-6 pt-6 border-t border-gray-200">
               <h3 className="px-4 mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#132552' }}>
                 Quick Actions
@@ -170,7 +169,7 @@ export default function Sidebar({ isOpen, onClose }) {
               </div>
             </div>
 
-            {/* Account Section */}
+            {/* Account Section - FIXED: Settings now uses Link */}
             <div className="px-4 pt-6 border-t border-gray-200">
               <h3 className="px-4 mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#132552' }}>
                 Account
@@ -184,13 +183,17 @@ export default function Sidebar({ isOpen, onClose }) {
                   <User className="w-5 h-5" />
                   <span className="text-sm">Profile</span>
                 </Link>
-                <button
-                  onClick={() => console.log('Settings')}
+                
+                {/* ✅ FIXED: Settings now navigates properly */}
+                <Link
+                  to="/settings"
+                  onClick={handleLinkClick}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
                 >
                   <Settings className="w-5 h-5" />
                   <span className="text-sm">Settings</span>
-                </button>
+                </Link>
+
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"

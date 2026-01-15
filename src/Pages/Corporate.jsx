@@ -1,11 +1,18 @@
 import { useNavigate } from 'react-router-dom';
-import { Users, Laptop } from 'lucide-react';
+import { Users, Laptop, UserPlus } from 'lucide-react';
 import DepartmentProtection from '../Components/DepartmentProtection';
 
 export default function Corporate() {
   const navigate = useNavigate();
 
   const subModules = [
+    {
+      id: 'register-employee',
+      name: 'Register Employee',
+      icon: UserPlus,
+      description: 'Register new employees to the intranet system',
+      path: '/corporate-affairs/register-employee'
+    },
     {
       id: 'stakeholders',
       name: 'Stakeholders',

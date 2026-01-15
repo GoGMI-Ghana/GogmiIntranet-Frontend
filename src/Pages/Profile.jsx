@@ -1,10 +1,12 @@
-import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Building, Calendar, Edit2, Save, X, Lock, Upload } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { User, Mail, Phone, MapPin, Building, Calendar, Edit2, Save, X, Lock, Upload, Camera } from 'lucide-react';
 
 export default function Profile() {
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(userData.profilePicture || null);
+  const fileInputRef = useRef(null);
   
   const [formData, setFormData] = useState({
     name: userData.name || '',
@@ -42,9 +44,40 @@ export default function Profile() {
     }));
   };
 
+  // Profile Picture Upload Handler
+  const handleProfilePictureClick = () => {
+    if (isEditing) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfilePicture(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = () => {
-    // Update localStorage
-    const updatedUser = { ...userData, ...formData };
+    // Update localStorage with profile picture
+    const updatedUser = { ...userData, ...formData, profilePicture };
     localStorage.setItem('user', JSON.stringify(updatedUser));
     setIsEditing(false);
     alert('Profile updated successfully!');
@@ -64,6 +97,7 @@ export default function Profile() {
       emergencyContact: userData.emergencyContact || '',
       emergencyPhone: userData.emergencyPhone || ''
     });
+    setProfilePicture(userData.profilePicture || null);
     setIsEditing(false);
   };
 
@@ -123,16 +157,45 @@ export default function Profile() {
             {/* Profile Picture */}
             <div className="flex flex-col items-center mb-6">
               <div className="relative">
-                <div className="w-32 h-32 rounded-full flex items-center justify-center text-white font-bold text-4xl shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, #132552 0%, #8e3400 100%)' }}>
-                  {formData.name?.split(' ').map(n => n[0]).join('') || 'EN'}
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                
+                {/* Profile Picture Display */}
+                <div 
+                  onClick={handleProfilePictureClick}
+                  className={`w-32 h-32 rounded-full flex items-center justify-center text-white font-bold text-4xl shadow-lg overflow-hidden ${
+                    isEditing ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''
+                  }`}
+                  style={profilePicture ? {} : { background: 'linear-gradient(135deg, #132552 0%, #8e3400 100%)' }}
+                >
+                  {profilePicture ? (
+                    <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    formData.name?.split(' ').map(n => n[0]).join('') || 'EN'
+                  )}
                 </div>
+                
+                {/* Upload Button Overlay */}
                 {isEditing && (
-                  <button className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md border-2 border-gray-200 hover:bg-gray-50">
-                    <Upload className="w-4 h-4 text-gray-600" />
+                  <button 
+                    onClick={handleProfilePictureClick}
+                    className="absolute bottom-0 right-0 bg-white p-2.5 rounded-full shadow-lg border-2 border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    <Camera className="w-5 h-5 text-gray-600" />
                   </button>
                 )}
               </div>
+              {isEditing && (
+                <p className="text-xs text-gray-500 mt-3 text-center">
+                  Click on the photo or camera icon to upload
+                </p>
+              )}
               <h2 className="text-xl font-bold text-gray-900 mt-4 text-center">{formData.name}</h2>
               <p className="text-gray-600 text-sm mt-1">{formData.position}</p>
               <p className="text-gray-500 text-xs font-mono mt-2">{formData.employeeId}</p>
