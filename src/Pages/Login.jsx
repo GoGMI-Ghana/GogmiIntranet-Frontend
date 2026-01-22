@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Mail, IdCard, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { API_URL } from '../config/api';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -225,30 +226,6 @@ export default function Login() {
                 {loading ? 'Signing in...' : 'Submit'}
               </button>
 
-              <div className="flex justify-center gap-3 mt-4 pt-2">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all hover:opacity-80"
-                  style={{
-                    background: 'rgba(142, 52, 0, 0.3)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
-                  }}>
-                  <span className="text-white text-xs">f</span>
-                </div>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all hover:opacity-80"
-                  style={{
-                    background: 'rgba(142, 52, 0, 0.3)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
-                  }}>
-                  <span className="text-white text-xs">📷</span>
-                </div>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all hover:opacity-80"
-                  style={{
-                    background: 'rgba(142, 52, 0, 0.3)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
-                  }}>
-                  <span className="text-white text-xs">P</span>
-                </div>
-              </div>
-
               <div className="mt-6 text-center pt-4 border-t border-white/10">
                 <p className="text-white/60 text-sm">
                   Don't have an account?{' '}
@@ -263,16 +240,6 @@ export default function Login() {
                 </p>
               </div>
             </form>
-
-            <div className="mt-4 p-3 rounded-lg text-center"
-              style={{
-                background: 'rgba(19, 37, 82, 0.4)',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
-              <p className="text-xs text-white/60">
-                Demo: <span className="text-white/80 font-medium">admin@gogmi.com</span> / admin123
-              </p>
-            </div>
           </div>
         </div>
       </div>
