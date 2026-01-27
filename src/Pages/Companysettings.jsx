@@ -6,7 +6,7 @@ export default function CompanySettings() {
     companyName: 'GULF OF GUINEA MARITIME INSTITUTE',
     companyAcronym: 'GoGMI',
     hrEmail: 'hr@gogmi.org.gh',
-    logoUrl: null
+    logoPath: null
   });
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -19,7 +19,7 @@ export default function CompanySettings() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/company-settings');
+      const response = await fetch('/api/company-settings');
       const data = await response.json();
       
       if (data.success) {
@@ -53,7 +53,7 @@ export default function CompanySettings() {
     formData.append('logo', file);
 
     try {
-      const response = await fetch('http://localhost:5000/api/company-settings/upload-logo', {
+      const response = await fetch('/api/company-settings/upload-logo', {
         method: 'POST',
         body: formData
       });
@@ -63,7 +63,7 @@ export default function CompanySettings() {
       if (data.success) {
         setSettings({
           ...settings,
-          logoUrl: data.logoUrl
+          logoPath: data.logoPath
         });
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
@@ -83,7 +83,7 @@ export default function CompanySettings() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/company-settings', {
+      const response = await fetch('/api/company-settings', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -195,9 +195,9 @@ export default function CompanySettings() {
                   Logo Preview
                 </label>
                 <div className="border border-gray-300 rounded-lg p-6 bg-gray-50">
-                  {settings.logoUrl ? (
+                  {settings.logoPath ? (
                     <img
-                      src={settings.logoUrl}
+                      src={settings.logoPath}
                       alt="Company Logo"
                       className="max-w-full h-32 object-contain mx-auto"
                     />
@@ -272,9 +272,9 @@ export default function CompanySettings() {
 
             <div className="border-2 border-gray-300 rounded-lg p-6 bg-white">
               <div className="flex items-center gap-4">
-                {settings.logoUrl ? (
+                {settings.logoPath ? (
                   <img
-                    src={settings.logoUrl}
+                    src={settings.logoPath}
                     alt="Company Logo"
                     className="w-20 h-20 object-contain"
                   />

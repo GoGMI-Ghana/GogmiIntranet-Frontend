@@ -29,7 +29,7 @@ import Payroll from './Pages/Admin/Payroll';
 import AdminAssets from './Pages/Admin/AdminAssets';
 import Budgets from './Pages/Admin/Budgets';
 import Procurement from './Pages/Admin/Procurement';
-import HR from './Pages/Admin/Hr';
+import HR from './Pages/Admin/HR';
 
 import ResearchWork from './Pages/Technical/ResearchWork';
 
