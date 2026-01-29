@@ -50,7 +50,7 @@ export default function Payroll() {
   const fetchPayslips = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/payslips');
+      const response = await fetch('/api/payslips');
       const data = await response.json();
       if (data.success) {
         setPayslips(data.payslips);
@@ -125,7 +125,7 @@ export default function Payroll() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/payslips', {
+      const response = await fetch('/api/payslips', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

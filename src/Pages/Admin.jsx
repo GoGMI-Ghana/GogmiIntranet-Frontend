@@ -42,13 +42,7 @@ export default function Admin() {
       description: 'Human resources management',
       path: '/admin-finance/hr'
     },
-    {
-      id: 'settings',
-      name: 'Company Settings',
-      icon: Settings,
-      description: 'Upload logo and configure company info',
-      path: '/admin-finance/settings'
-    },
+    
 
 
     {

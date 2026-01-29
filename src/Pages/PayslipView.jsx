@@ -22,7 +22,7 @@ export default function PayslipView() {
 
   const fetchCompanySettings = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/company-settings');
+      const response = await fetch('/api/company-settings');
       const data = await response.json();
       
       if (data.success) {
@@ -128,9 +128,9 @@ export default function PayslipView() {
             <div className="flex items-center justify-between">
               {/* Company Logo */}
               <div className="flex items-center gap-4">
-                {companySettings.logoUrl ? (
+                {companySettings.logoPath ? (
                   <img
-                    src={companySettings.logoUrl}
+                    src={companySettings.logoPath}
                     alt="Company Logo"
                     className="w-20 h-20 object-contain"
                   />

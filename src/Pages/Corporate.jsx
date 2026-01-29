@@ -1,11 +1,18 @@
 import { useNavigate } from 'react-router-dom';
-import { Users, Laptop, UserPlus } from 'lucide-react';
+import { Users, Laptop, UserPlus, Settings } from 'lucide-react';
 import DepartmentProtection from '../Components/DepartmentProtection';
 
 export default function Corporate() {
   const navigate = useNavigate();
 
   const subModules = [
+    {
+      id: 'company-settings',
+      name: 'Company Settings',
+      icon:Settings,
+      description: 'Configure company information and branding',
+      path: '/corporate-affairs/settings'
+    },
     {
       id: 'register-employee',
       name: 'Register Employee',

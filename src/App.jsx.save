@@ -245,7 +245,7 @@ function App() {
           </ProtectedRoute>
         } />
 
-        <Route path="/corporate-affairs/settings" element={
+        <Route path="/admin-finance/settings" element={
           <ProtectedRoute>
             <CompanySettings />
           </ProtectedRoute>
