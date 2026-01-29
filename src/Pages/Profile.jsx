@@ -51,7 +51,8 @@ export default function Profile() {
     }
   };
 
-  const handleFileChange = (e) => {
+  
+const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -67,21 +68,72 @@ export default function Profile() {
       return;
     }
 
-    // Convert to base64
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfilePicture(reader.result);
-    };
-    reader.readAsDataURL(file);
+    // Upload to backend
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+    formData.append('userId', userData.id);
+
+    try {
+      const response = await fetch('/api/profile/picture', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setProfilePicture(data.profilePicture);
+        
+        // Update localStorage
+        const updatedUser = { ...userData, profilePicture: data.profilePicture };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        alert('Profile picture updated successfully!');
+      } else {
+        alert(data.message || 'Failed to upload profile picture');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload profile picture');
+    }
+};
+
+
+
+const handleSave = async () => {
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userData.id,
+          name: formData.name,
+          phoneNumber: formData.phone,
+          dateOfBirth: formData.dateOfBirth
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        // Update localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setIsEditing(false);
+        alert('Profile updated successfully!');
+      } else {
+        alert(data.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+      alert('Failed to update profile');
+    }
   };
 
-  const handleSave = () => {
-    // Update localStorage with profile picture
-    const updatedUser = { ...userData, ...formData, profilePicture };
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    setIsEditing(false);
-    alert('Profile updated successfully!');
-  };
+
+
+
+
+
 
   const handleCancel = () => {
     setFormData({

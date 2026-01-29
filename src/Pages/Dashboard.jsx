@@ -273,9 +273,9 @@ export default function Dashboard() {
             <div className="bg-white rounded-lg shadow-sm p-6 space-y-6 lg:sticky lg:top-20">
               {/* User Avatar */}
               <div className="flex items-center space-x-4 pb-4 border-b">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"
+                <div className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl overflow-hidden"
                   style={{ background: 'linear-gradient(135deg, #132552 0%, #8e3400 100%)' }}>
-                  {userData.name?.split(' ').map(n => n[0]).join('') || 'EN'}
+                  {userData.profilePicture ? (<img src={userData.profilePicture} alt={userData.name} className="w-16 h-16 rounded-full object-cover" />) : (userData.name?.split(' ').map(n => n[0]).join('') || 'EN')}
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">
