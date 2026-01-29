@@ -131,7 +131,7 @@ function App() {
           </ProtectedRoute>
         } />
         
-        <Route path="/general/assets" element={
+        <Route path="/corporate-affairs/assets" element={
           <ProtectedRoute>
             <Assets />
           </ProtectedRoute>
@@ -144,8 +144,8 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path="/general/employee-data" element={
+    <Route path="/admin-finance/employee-data" element={ 
+       
           <ProtectedRoute>
             <Layout>
               <EmployeeData />

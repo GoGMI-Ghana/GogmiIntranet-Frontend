@@ -14,6 +14,18 @@ export default function Admin() {
       description: 'Salary and compensation management',
       path: '/admin-finance/payroll'
     },
+
+
+
+{
+      id: 'employee-data',
+      name: 'Employee Data',
+      icon: Users,
+      description: 'Employee information and records',
+      path: '/admin-finance/employee-data'
+    },
+
+
     {
       id: 'assets',
       name: 'Assets',

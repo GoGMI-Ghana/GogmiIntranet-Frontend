@@ -13,6 +13,20 @@ export default function Corporate() {
       description: 'Configure company information and branding',
       path: '/corporate-affairs/settings'
     },
+
+
+
+{
+      id: 'assets',
+      name: 'Assets',
+      icon: Settings,
+      description: 'Company assets and inventory',
+      path: '/corporate-affairs/assets'
+    },
+   
+
+
+
     {
       id: 'register-employee',
       name: 'Register Employee',

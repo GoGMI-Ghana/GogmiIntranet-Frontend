@@ -1,9 +1,30 @@
 import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, X, Home, LogOut, Settings, User } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const navigate = useNavigate();
+
+
+const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      setUserData(JSON.parse(user));
+    }
+  }, []);
+
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.split(' ');
+    return parts.map(p => p[0]).join('').substring(0, 2).toUpperCase();
+  };
+
+
+
+
 
   const navItems = [
     {
@@ -93,7 +114,7 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200 flex-shrink-0" style={{ backgroundColor: '#132552' }}>
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm" style={{ backgroundColor: '#8e3400' }}>
-              <span className="text-white font-bold text-lg">I</span>
+           <img src="/gogmi-logo.png" alt="GoGMI" className="w-8 h-8 object-contain" />
             </div>
             <span className="font-bold text-white text-lg">Intranet</span>
           </div>
@@ -209,12 +230,14 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Fixed Footer - User Info */}
         <div className="p-4 border-t border-gray-200 flex-shrink-0">
           <div className="flex items-center space-x-3">
+           
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-md" style={{ background: 'linear-gradient(135deg, #132552 0%, #8e3400 100%)' }}>
-              EN
+              {getInitials(userData?.name)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">Enoch Nikoi</p>
-              <p className="text-xs text-gray-500 truncate">Employee</p>
+              <p className="text-sm font-medium text-gray-900 truncate">{userData?.name || 'User'}</p>
+              <p className="text-xs text-gray-500 truncate">{userData?.position || 'Employee'}</p>
+              
             </div>
           </div>
         </div>

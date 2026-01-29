@@ -27,13 +27,7 @@ export default function General() {
       description: 'Stakeholder management',
       path: '/general/stakeholders'
     },
-    {
-      id: 'assets',
-      name: 'Assets',
-      icon: Package,
-      description: 'Company assets and inventory',
-      path: '/general/assets'
-    },
+    
     {
       id: 'imswg',
       name: 'IMSWG',
@@ -41,13 +35,7 @@ export default function General() {
       description: 'IMSWG data management and reporting',
       path: '/general/imswg'
     },
-    {
-      id: 'employee-data',
-      name: 'Employee Data',
-      icon: UserSquare2,
-      description: 'Employee information and records',
-      path: '/general/employee-data'
-    },
+   
 
 
     {
