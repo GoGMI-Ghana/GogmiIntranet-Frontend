@@ -328,8 +328,8 @@ export default function Dashboard() {
                 <div className="flex items-start space-x-3">
                   <User className="w-5 h-5 text-gray-400 mt-1" />
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">Supervisor</p>
-                    <p className="text-sm font-medium text-gray-900">Jonas Aryeh</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">Line Manager</p>
+                    <p className="text-sm font-medium text-gray-900">{userData.lineManager || 'Not assigned'}</p>
                   </div>
                 </div>
 
