@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Download, ArrowLeft, Printer } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
+import Layout from '../Components/Layout';
 
 export default function PayslipView() {
   const { id } = useParams();
@@ -92,6 +93,7 @@ export default function PayslipView() {
   }
 
   return (
+    <Layout>
     <div className="min-h-screen bg-gray-100 py-8">
       {/* Action Buttons - Hide when printing */}
       <div className="max-w-4xl mx-auto px-4 mb-4 print:hidden">
@@ -348,5 +350,6 @@ export default function PayslipView() {
         </div>
       </div>
     </div>
+ </Layout>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { User, Mail, Phone, MapPin, Building, Calendar, Edit2, Save, X, Lock, Upload, Camera } from 'lucide-react';
+import Layout from '../Components/Layout';
 
 export default function Profile() {
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
@@ -188,10 +189,12 @@ const handleSave = async () => {
       'directorate': 'Directorate'
     };
     return departments[dept] || dept;
-  };
+   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+   
+ <Layout>
+ <div className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 text-gray-800">
@@ -612,5 +615,6 @@ const handleSave = async () => {
         </div>
       )}
     </div>
+ </Layout>
   );
 }

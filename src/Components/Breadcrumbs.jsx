@@ -23,7 +23,15 @@ export default function Breadcrumbs() {
     'research-work': 'Research Work',
     'it': 'IT',
     'executive-management': 'Executive Management',
-    'profile': 'Profile'
+    'profile': 'My Profile',
+    'settings': 'Settings',
+    'register-employee': 'Register Employee',
+    'my-payslips': 'My Payslips',
+    'my-leave': 'My Leave',
+    'leave-management': 'Leave Management',
+    'announcements': 'Announcements',
+    'kpi-goals': 'KPI Goals',
+    'view-payslip': 'View Payslip'
   };
 
   // Build breadcrumb array from current path

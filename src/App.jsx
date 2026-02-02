@@ -37,7 +37,13 @@ import CorporateStakeholders from './Pages/Corporate/CorporateStakeholders';
 import IT from './Pages/Corporate/IT';
 import RegisterEmployee from './Pages/Corporate/RegisterEmployee';
 
-import ExecutiveManagement from './Pages/Directorate/ExecutiveManagement';
+
+
+import CompanyStrategy from './Pages/Directorate/CompanyStrategy';
+import AdvisoryBoard from './Pages/Directorate/AdvisoryBoard';
+import CompanyPerformance from './Pages/Directorate/CompanyPerformance';
+
+
 
 function ProtectedRoute({ children }) {
   const user = localStorage.getItem('user');
@@ -237,10 +243,25 @@ function App() {
           </ProtectedRoute>
         } />
         
-        <Route path="/directorate/executive-management" element={
+        {/* Directorate Routes */}
+        <Route path="/directorate/company-strategy" element={
           <ProtectedRoute>
             <Layout>
-              <ExecutiveManagement />
+              <CompanyStrategy />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/directorate/advisory-board" element={
+          <ProtectedRoute>
+            <Layout>
+              <AdvisoryBoard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/directorate/company-performance" element={
+          <ProtectedRoute>
+            <Layout>
+              <CompanyPerformance />
             </Layout>
           </ProtectedRoute>
         } />

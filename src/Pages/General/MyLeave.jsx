@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, FileText, CheckCircle, XCircle, AlertCircle, Loader } from 'lucide-react';
+import Layout from '../../Components/Layout';
 
 export default function MyLeave() {
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -165,6 +166,7 @@ export default function MyLeave() {
   };
 
   return (
+   <Layout> 
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
@@ -391,5 +393,6 @@ export default function MyLeave() {
         </div>
       )}
     </div>
+ </Layout>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Eye, Download, Calendar, FileText, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Layout from '../Components/Layout';
 
 export default function EmployeePayslips() {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ export default function EmployeePayslips() {
   ];
 
   return (
+   <Layout>
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
@@ -248,5 +250,6 @@ export default function EmployeePayslips() {
         </div>
       )}
     </div>
+  </Layout>
   );
 }

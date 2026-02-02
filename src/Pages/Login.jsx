@@ -81,7 +81,7 @@ export default function Login() {
             border: '1px solid rgba(255, 255, 255, 0.2)',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
           }}>
-          <span className="text-white font-bold text-2xl">I</span>
+         <img src="/gogmi-logo.png" alt="GoGMI" className="w-10 h-10 object-contain" />
         </div>
       </div>
 
@@ -107,13 +107,13 @@ export default function Login() {
             <div className="w-24 h-1 rounded-full mb-8" 
               style={{ background: '#8e3400' }}></div>
             <p className="text-white/90 text-lg leading-relaxed max-w-md">
-              Access your company intranet portal. Manage your work, collaborate with teams, and stay connected with your organization.
+              Access the company Intranet portal. Manage your work, collaborate with teams and stay connected on all updates.
             </p>
           </div>
 
           <div className="mt-auto">
             <p className="text-white/60 text-sm">
-              © 2025 Company Intranet. All rights reserved.
+              © 2025 GoGMI Intranet. All rights reserved.
             </p>
           </div>
         </div>
