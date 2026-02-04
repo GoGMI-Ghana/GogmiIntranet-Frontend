@@ -44,7 +44,14 @@ export default function General() {
       icon: Calendar,
       description: 'Request leave and view leave balance',
       path: '/general/my-leave'
-    }
+    },
+{
+      id: 'mou',
+      name: 'MoU',
+      icon: FileText,
+      description: 'Memorandum of Understanding management',
+      path: '/general/mou'
+    },
 
 
   ];

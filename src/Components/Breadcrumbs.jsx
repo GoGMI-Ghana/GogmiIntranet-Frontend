@@ -31,7 +31,8 @@ export default function Breadcrumbs() {
     'leave-management': 'Leave Management',
     'announcements': 'Announcements',
     'kpi-goals': 'KPI Goals',
-    'view-payslip': 'View Payslip'
+    'view-payslip': 'View Payslip',
+    'mou': 'MOU'
   };
 
   // Build breadcrumb array from current path

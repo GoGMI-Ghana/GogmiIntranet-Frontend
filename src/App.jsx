@@ -42,7 +42,7 @@ import RegisterEmployee from './Pages/Corporate/RegisterEmployee';
 import CompanyStrategy from './Pages/Directorate/CompanyStrategy';
 import AdvisoryBoard from './Pages/Directorate/AdvisoryBoard';
 import CompanyPerformance from './Pages/Directorate/CompanyPerformance';
-
+import MOU from './Pages/General/MOU';
 
 
 function ProtectedRoute({ children }) {
@@ -281,6 +281,16 @@ function App() {
         <Route path="/admin-finance/leave-management" element={
           <ProtectedRoute>
             <LeaveManagement />
+          </ProtectedRoute>
+        } />
+
+
+
+       <Route path="/general/mou" element={
+          <ProtectedRoute>
+            <Layout>
+              <MOU />
+            </Layout>
           </ProtectedRoute>
         } />
 
