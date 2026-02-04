@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { FlaskConical } from 'lucide-react';
+import { FlaskConical, Megaphone, GraduationCap } from 'lucide-react';
 import DepartmentProtection from '../Components/DepartmentProtection';
 
 export default function Technical() {
@@ -7,11 +7,25 @@ export default function Technical() {
 
   const subModules = [
     {
-      id: 'research-work',
-      name: 'Research Work',
+      id: 'research',
+      name: 'Research',
       icon: FlaskConical,
       description: 'Research and development activities',
-      path: '/technical/research-work'
+      path: '/technical/research'
+    },
+    {
+      id: 'advocacy',
+      name: 'Advocacy',
+      icon: Megaphone,
+      description: 'Advocacy and outreach programs',
+      path: '/technical/advocacy'
+    },
+    {
+      id: 'capacity-building',
+      name: 'Capacity Building',
+      icon: GraduationCap,
+      description: 'Training and capacity development',
+      path: '/technical/capacity-building'
     }
   ];
 

@@ -31,7 +31,9 @@ import Budgets from './Pages/Admin/Budgets';
 import Procurement from './Pages/Admin/Procurement';
 import HR from './Pages/Admin/HR';
 
-import ResearchWork from './Pages/Technical/ResearchWork';
+import Research from './Pages/Technical/Research';
+import Advocacy from './Pages/Technical/Advocacy';
+import CapacityBuilding from './Pages/Technical/CapacityBuilding';
 
 import CorporateStakeholders from './Pages/Corporate/CorporateStakeholders';
 import IT from './Pages/Corporate/IT';
@@ -199,10 +201,25 @@ function App() {
           </ProtectedRoute>
         } />
         
-        <Route path="/technical/research-work" element={
+        {/* Technical Routes */}
+        <Route path="/technical/research" element={
           <ProtectedRoute>
             <Layout>
-              <ResearchWork />
+              <Research />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/technical/advocacy" element={
+          <ProtectedRoute>
+            <Layout>
+              <Advocacy />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/technical/capacity-building" element={
+          <ProtectedRoute>
+            <Layout>
+              <CapacityBuilding />
             </Layout>
           </ProtectedRoute>
         } />

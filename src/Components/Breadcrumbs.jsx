@@ -32,7 +32,10 @@ export default function Breadcrumbs() {
     'announcements': 'Announcements',
     'kpi-goals': 'KPI Goals',
     'view-payslip': 'View Payslip',
-    'mou': 'MOU'
+    'mou': 'MOU',
+    'research': 'Research',
+    'advocacy': 'Advocacy',
+    'capacity-building': 'Capacity Building',
   };
 
   // Build breadcrumb array from current path

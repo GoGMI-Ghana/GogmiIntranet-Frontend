@@ -21,6 +21,11 @@ export default function Dashboard() {
   const [employees, setEmployees] = useState([]);
   const [loadingEmployees, setLoadingEmployees] = useState(true);
 
+
+  const [birthdays, setBirthdays] = useState([]);
+  const [anniversaries, setAnniversaries] = useState([]);
+
+
   // Get user data from localStorage
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -28,7 +33,12 @@ export default function Dashboard() {
   useEffect(() => {
     fetchAnnouncements();
     fetchLeaveBalance();
+    fetchBirthdays();
+    fetchAnniversaries();
     fetchEmployees();
+
+
+
   }, []);
 
   // Fetch announcements function
@@ -47,6 +57,34 @@ export default function Dashboard() {
       setLoadingAnnouncements(false);
     }
   };
+
+
+const fetchBirthdays = async () => {
+    try {
+      const response = await fetch('/api/birthdays?period=month');
+      const data = await response.json();
+      if (data.success) {
+        setBirthdays(data.birthdays);
+      }
+    } catch (error) {
+      console.error('Error fetching birthdays:', error);
+    }
+  };
+
+  const fetchAnniversaries = async () => {
+    try {
+      const response = await fetch('/api/anniversaries?period=month');
+      const data = await response.json();
+      if (data.success) {
+        setAnniversaries(data.anniversaries);
+      }
+    } catch (error) {
+      console.error('Error fetching anniversaries:', error);
+    }
+  };
+
+
+
 
   // Fetch leave balance function
   const fetchLeaveBalance = async () => {
@@ -70,7 +108,7 @@ export default function Dashboard() {
   };
 
   // Fetch employees function
-  const fetchEmployees = async () => {
+    const fetchEmployees = async () => {
     setLoadingEmployees(true);
     try {
       const response = await fetch('http://localhost:5000/api/users');
@@ -149,17 +187,9 @@ export default function Dashboard() {
     }
   ];
 
-  const birthdays = [
-    { name: 'Enoch Nii', date: 'Dec 7th', avatar: 'EN', color: 'bg-pink-500' },
-    { name: 'Paa Boamah', date: 'Dec 12th', avatar: 'PB', color: 'bg-pink-500' },
-    { name: 'Joseph Apaw', date: 'Dec 24th', avatar: 'JA', color: 'bg-pink-500' }
-  ];
+  
 
-  const anniversaries = [
-    { name: 'Belinda Noi', date: 'Dec 2nd (1 year)', avatar: 'BN', color: 'bg-blue-500' },
-    { name: 'Oyewole Oyelaye', date: 'Dec 3rd (1 year)', avatar: 'OO', color: 'bg-blue-500' },
-    { name: 'Emmanuel Arthur', date: 'Dec 4th (2 years)', avatar: 'EA', color: 'bg-blue-500' }
-  ];
+
 
   const [leaveBalance, setLeaveBalance] = useState([
     { type: 'Annual Leave', used: 0, total: 22, color: 'bg-blue-600' },
@@ -325,13 +355,18 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3">
+               <div className="flex items-start space-x-3">
                   <User className="w-5 h-5 text-gray-400 mt-1" />
                   <div>
-                   <p className="text-sm font-medium text-gray-900">{userData.lineManager || 'Line Manager'}</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">Line Manager</p>
                     <p className="text-sm font-medium text-gray-900">{userData.lineManager || 'N/A'}</p>
                   </div>
                 </div>
+               
+
+
+
+
 
                 <div className="flex items-start space-x-3">
                   <Calendar className="w-5 h-5 text-gray-400 mt-1" />
