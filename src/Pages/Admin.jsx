@@ -24,15 +24,6 @@ export default function Admin() {
       description: 'Employee information and records',
       path: '/admin-finance/employee-data'
     },
-
-
-    {
-      id: 'assets',
-      name: 'Assets',
-      icon: Package,
-      description: 'Company assets and inventory',
-      path: '/admin-finance/assets'
-    },
     {
       id: 'budgets',
       name: 'Budgets',

@@ -74,12 +74,15 @@ const [userData, setUserData] = useState(null);
     }
   ];
 
-  const quickActions = [
-    { label: 'Request Leave', action: () => navigate('/general/my-leave') },
+
+const quickActions = [
+    { label: 'Request Leave', action: () => navigate('/general/my-leave'), disabled: true },
     { label: 'Set KPI Goals', action: () => console.log('Set KPI') },
     { label: 'View Payslip', action: () => navigate('/my-payslips') },
     { label: 'Update Profile', action: () => navigate('/profile') }
   ];
+
+
 
   const handleLinkClick = () => {
     if (window.innerWidth < 768) {
@@ -179,10 +182,17 @@ const [userData, setUserData] = useState(null);
                   <button
                     key={idx}
                     onClick={() => {
-                      action.action();
-                      handleLinkClick();
+                      if (!action.disabled) {
+                        action.action();
+                        handleLinkClick();
+                      }
                     }}
-                    className="w-full text-left px-4 py-2.5 rounded-lg transition-colors text-gray-700 hover:bg-gray-100 text-sm font-medium"
+                    disabled={action.disabled}
+                    className={`w-full text-left px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${
+                      action.disabled 
+                        ? 'text-gray-400 cursor-not-allowed opacity-50' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                   >
                     {action.label}
                   </button>

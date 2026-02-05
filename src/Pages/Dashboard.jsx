@@ -22,6 +22,38 @@ export default function Dashboard() {
   const [loadingEmployees, setLoadingEmployees] = useState(true);
 
 
+
+// Calculate time in company
+  const calculateTimeInCompany = (joinDate) => {
+    if (!joinDate) return 'N/A';
+    const start = new Date(joinDate);
+    const now = new Date();
+    
+    let years = now.getFullYear() - start.getFullYear();
+    let months = now.getMonth() - start.getMonth();
+    
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    
+    if (years === 0) {
+      return `${months} month${months !== 1 ? 's' : ''}`;
+    } else if (months === 0) {
+      return `${years} year${years !== 1 ? 's' : ''}`;
+    } else {
+      return `${years} year${years !== 1 ? 's' : ''} ${months} month${months !== 1 ? 's' : ''}`;
+    }
+  };
+
+  // Format work anniversary date
+  const formatAnniversary = (joinDate) => {
+    if (!joinDate) return 'N/A';
+    const date = new Date(joinDate);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+
   const [birthdays, setBirthdays] = useState([]);
   const [anniversaries, setAnniversaries] = useState([]);
 
@@ -372,7 +404,7 @@ const fetchBirthdays = async () => {
                   <Calendar className="w-5 h-5 text-gray-400 mt-1" />
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider">Work Anniversary</p>
-                    <p className="text-sm font-medium text-gray-900">Feb 1st</p>
+                    <p className="text-sm font-medium text-gray-900">{formatAnniversary(userData.joinDate)}</p>
                   </div>
                 </div>
 
@@ -380,7 +412,7 @@ const fetchBirthdays = async () => {
                   <Clock className="w-5 h-5 text-gray-400 mt-1" />
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider">Time in Company</p>
-                    <p className="text-sm font-medium text-gray-900">4 years 10 months</p>
+                    <p className="text-sm font-medium text-gray-900">{calculateTimeInCompany(userData.joinDate)}</p>
                   </div>
                 </div>
               </div>

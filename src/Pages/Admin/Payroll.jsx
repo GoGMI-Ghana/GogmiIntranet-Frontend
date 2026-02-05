@@ -90,9 +90,11 @@ export default function Payroll() {
         staffNo: employee.employeeId,
         employeeName: employee.name,
         department: employee.department,
-        position: employee.position || ''
-      });
-      setSelectedEmployee(employee);
+        position: employee.position || '',
+        costCentre: employee.costCentre || '',
+        band: employee.band || ''
+      });        
+ setSelectedEmployee(employee);
     }
   };
 
@@ -243,7 +245,7 @@ export default function Payroll() {
                 GH₵{payslips.reduce((sum, p) => sum + parseFloat(p.netPay || 0), 0).toLocaleString()}
               </p>
             </div>
-            <DollarSign className="w-10 h-10 text-gray-700" />
+          
           </div>
         </div>
       </div>
