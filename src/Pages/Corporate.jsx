@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { Users, Laptop, UserPlus, Settings } from 'lucide-react';
-import DepartmentProtection from '../Components/DepartmentProtection';
 
 export default function Corporate() {
   const navigate = useNavigate();
@@ -51,7 +50,6 @@ export default function Corporate() {
   ];
 
   return (
-    <DepartmentProtection departmentId="corporate-affairs">
       <div className="p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#132552' }}>
@@ -89,6 +87,5 @@ export default function Corporate() {
           })}
         </div>
       </div>
-    </DepartmentProtection>
   );
 }

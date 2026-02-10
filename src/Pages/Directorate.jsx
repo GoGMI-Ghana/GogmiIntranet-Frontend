@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, Users, BarChart3, UserCheck } from 'lucide-react';
-import DepartmentProtection from '../Components/DepartmentProtection';
 
 export default function Directorate() {
   const navigate = useNavigate();
@@ -37,7 +36,6 @@ export default function Directorate() {
   ];
 
   return (
-    <DepartmentProtection departmentId="directorate">
       <div className="p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#132552' }}>
@@ -75,6 +73,5 @@ export default function Directorate() {
           })}
         </div>
       </div>
-    </DepartmentProtection>
   );
 }

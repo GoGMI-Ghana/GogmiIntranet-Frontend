@@ -47,24 +47,13 @@ import CompanyPerformance from './Pages/Directorate/CompanyPerformance';
 import MOU from './Pages/General/MOU';
 
 
-import DepartmentProtectedRoute from './Components/DepartmentProtectedRoute';
-
-function ProtectedRoute({ children, department }) {
+function ProtectedRoute({ children }) {
   const user = localStorage.getItem('user');
   
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-
-  // If department is specified, wrap with DepartmentProtectedRoute
-  if (department) {
-    return (
-      <DepartmentProtectedRoute requiredDepartment={department}>
-        {children}
-      </DepartmentProtectedRoute>
-    );
-  }
-
+  
   return children;
 }
 
@@ -103,7 +92,7 @@ function App() {
         } />
         
         <Route path="/admin-finance" element={
-          <ProtectedRoute department="admin-finance">
+          <ProtectedRoute>
             <Layout>
               <Admin />
             </Layout>
@@ -111,7 +100,7 @@ function App() {
         } />
         
         <Route path="/technical" element={
-          <ProtectedRoute department="technical">
+          <ProtectedRoute>
             <Layout>
               <Technical />
             </Layout>
@@ -119,7 +108,7 @@ function App() {
         } />
         
         <Route path="/corporate-affairs" element={
-          <ProtectedRoute department="corporate-affairs">
+          <ProtectedRoute>
             <Layout>
               <Corporate />
             </Layout>
@@ -127,7 +116,7 @@ function App() {
         } />
         
         <Route path="/directorate" element={
-          <ProtectedRoute department="directorate">
+          <ProtectedRoute>
             <Layout>
               <Directorate />
             </Layout>
@@ -151,7 +140,7 @@ function App() {
         } />
         
         <Route path="/corporate-affairs/assets" element={
-          <ProtectedRoute department="corporate-affairs">
+          <ProtectedRoute>
             <Assets />
           </ProtectedRoute>
         } />
@@ -165,7 +154,7 @@ function App() {
         } />
     <Route path="/admin-finance/employee-data" element={ 
        
-          <ProtectedRoute department="admin-finance">
+          <ProtectedRoute>
             <Layout>
               <EmployeeData />
             </Layout>
@@ -173,7 +162,7 @@ function App() {
         } />
         
         <Route path="/admin-finance/payroll" element={
-          <ProtectedRoute department="admin-finance">
+          <ProtectedRoute>
             <Layout>
               <Payroll />
             </Layout>
@@ -181,7 +170,7 @@ function App() {
         } />
         
         <Route path="/admin-finance/assets" element={
-          <ProtectedRoute department="admin-finance">
+          <ProtectedRoute>
             <Layout>
               <AdminAssets />
             </Layout>
@@ -189,7 +178,7 @@ function App() {
         } />
         
         <Route path="/admin-finance/budgets" element={
-          <ProtectedRoute department="admin-finance">
+          <ProtectedRoute>
             <Layout>
               <Budgets />
             </Layout>
@@ -197,7 +186,7 @@ function App() {
         } />
         
         <Route path="/admin-finance/procurement" element={
-          <ProtectedRoute department="admin-finance">
+          <ProtectedRoute>
             <Layout>
               <Procurement />
             </Layout>
@@ -205,7 +194,7 @@ function App() {
         } />
         
         <Route path="/admin-finance/hr" element={
-          <ProtectedRoute department="admin-finance">
+          <ProtectedRoute>
             <Layout>
               <HR />
             </Layout>
@@ -214,21 +203,21 @@ function App() {
         
         {/* Technical Routes */}
         <Route path="/technical/research" element={
-          <ProtectedRoute department="technical">
+          <ProtectedRoute>
             <Layout>
               <Research />
             </Layout>
           </ProtectedRoute>
         } />
         <Route path="/technical/advocacy" element={
-          <ProtectedRoute department="technical">
+          <ProtectedRoute>
             <Layout>
               <Advocacy />
             </Layout>
           </ProtectedRoute>
         } />
         <Route path="/technical/capacity-building" element={
-          <ProtectedRoute department="technical">
+          <ProtectedRoute>
             <Layout>
               <CapacityBuilding />
             </Layout>
@@ -236,7 +225,7 @@ function App() {
         } />
         
         <Route path="/corporate-affairs/register-employee" element={
-          <ProtectedRoute department="corporate-affairs">
+          <ProtectedRoute>
             <Layout>
               <RegisterEmployee />
             </Layout>
@@ -244,7 +233,7 @@ function App() {
         } />
 
         <Route path="/corporate-affairs/stakeholders" element={
-          <ProtectedRoute department="corporate-affairs">
+          <ProtectedRoute>
             <Layout>
               <CorporateStakeholders />
             </Layout>
@@ -252,7 +241,7 @@ function App() {
         } />
         
         <Route path="/corporate-affairs/it" element={
-          <ProtectedRoute department="corporate-affairs">
+          <ProtectedRoute>
             <Layout>
               <IT />
             </Layout>
@@ -273,21 +262,21 @@ function App() {
         
         {/* Directorate Routes */}
         <Route path="/directorate/company-strategy" element={
-          <ProtectedRoute department="directorate">
+          <ProtectedRoute>
             <Layout>
               <CompanyStrategy />
             </Layout>
           </ProtectedRoute>
         } />
         <Route path="/directorate/advisory-board" element={
-          <ProtectedRoute department="directorate">
+          <ProtectedRoute>
             <Layout>
               <AdvisoryBoard />
             </Layout>
           </ProtectedRoute>
         } />
         <Route path="/directorate/company-performance" element={
-          <ProtectedRoute department="directorate">
+          <ProtectedRoute>
             <Layout>
               <CompanyPerformance />
             </Layout>
@@ -295,7 +284,7 @@ function App() {
         } />
 
         <Route path="/corporate-affairs/settings" element={
-          <ProtectedRoute department="corporate-affairs">
+          <ProtectedRoute>
             <CompanySettings />
           </ProtectedRoute>
         } />
@@ -307,7 +296,7 @@ function App() {
         } />
 
         <Route path="/admin-finance/leave-management" element={
-          <ProtectedRoute department="admin-finance">
+          <ProtectedRoute>
             <LeaveManagement />
           </ProtectedRoute>
         } />

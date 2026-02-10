@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { FlaskConical, Megaphone, GraduationCap } from 'lucide-react';
-import DepartmentProtection from '../Components/DepartmentProtection';
 
 export default function Technical() {
   const navigate = useNavigate();
@@ -30,7 +29,6 @@ export default function Technical() {
   ];
 
   return (
-    <DepartmentProtection departmentId="technical">
       <div className="p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#132552' }}>
@@ -68,6 +66,5 @@ export default function Technical() {
           })}
         </div>
       </div>
-    </DepartmentProtection>
   );
 }

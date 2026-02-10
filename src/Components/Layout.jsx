@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Breadcrumbs from './Breadcrumbs';
@@ -7,24 +8,32 @@ import NotificationsPanel from './NotificationsPanel';
 
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  
+  // Hide sidebar on Employee Data page for full-screen experience
+  const isEmployeeDataPage = location.pathname === '/admin-finance/employee-data';
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {/* Sidebar - Hidden on Employee Data page */}
+      {!isEmployeeDataPage && (
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      )}
 
       {/* Main Content Area */}
-      <div className="lg:pl-64">
+      <div className={isEmployeeDataPage ? '' : 'lg:pl-64'}>
         {/* Top Header Bar */}
         <header className="sticky top-0 z-30 h-16 border-b shadow-sm" style={{ backgroundColor: '#132552' }}>
           <div className="h-full px-4 flex items-center justify-between">
             {/* Left: Menu button */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
+            {!isEmployeeDataPage && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            )}
 
             {/* Center: Search (desktop) */}
             <div className="hidden md:flex flex-1 max-w-md mx-4">
@@ -44,8 +53,8 @@ export default function Layout({ children }) {
           </div>
         </header>
 
-        {/* Breadcrumbs */}
-        <Breadcrumbs />
+        {/* Breadcrumbs - Hidden on Employee Data page */}
+        {!isEmployeeDataPage && <Breadcrumbs />}
 
         {/* Page Content */}
         <main className="min-h-screen">

@@ -8,9 +8,9 @@ export default function Dashboard() {
   
   // Department Access Modal States
   const [showDepartmentModal, setShowDepartmentModal] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
-  const [departmentCode, setDepartmentCode] = useState('');
-  const [departmentError, setDepartmentError] = useState('');
+  
+  
+  
   const [verifying, setVerifying] = useState(false);
 
   // Announcements States
@@ -259,15 +259,7 @@ const fetchBirthdays = async () => {
 
   // Department Access Handler
   const handleDepartmentClick = (dept) => {
-    if (dept.id === 'general') {
-      navigate(dept.path);
-      return;
-    }
-
-    setSelectedDepartment(dept);
-    setShowDepartmentModal(true);
-    setDepartmentCode('');
-    setDepartmentError('');
+    navigate(dept.path);
   };
 
   // Verify Department Access Code

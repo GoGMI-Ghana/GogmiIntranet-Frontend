@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { Wallet, Package, PieChart, ShoppingCart, Users, Settings,Calendar } from 'lucide-react';
-import DepartmentProtection from '../Components/DepartmentProtection';
 
 
 export default function Admin() {
@@ -60,7 +59,6 @@ export default function Admin() {
   ];
 
   return (
-    <DepartmentProtection departmentId="admin-finance">
       <div className="p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#132552' }}>
@@ -98,6 +96,5 @@ export default function Admin() {
           })}
         </div>
       </div>
-    </DepartmentProtection>
   );
 }
