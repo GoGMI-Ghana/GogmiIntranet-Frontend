@@ -1,25 +1,31 @@
 import { useState, useEffect } from 'react';
-import { Plus, Eye, Trash2, Archive, Search, X, Upload, Calendar, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Package, Plus, X, Search, Filter, Eye, Archive, ArchiveRestore, Edit, Calendar, MapPin, Tag } from 'lucide-react';
 
 export default function Assets() {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('current');
-  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [assets, setAssets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [assets, setAssets] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  const [filterStatus, setFilterStatus] = useState('');
+  const [activeTab, setActiveTab] = useState('current'); // 'current' or 'archived'
+  
   const [formData, setFormData] = useState({
-    location: '',
-    product: '',
-    model: '',
-    quantity: 1,
-    status: '',
-    owner: '',
+    name: '',
+    category: '',
+    description: '',
+    modelNumber: '',
+    serialNumber: '',
     purchaseDate: '',
+    purchasePrice: '',
+    currentValue: '',
+    assignedTo: '',
+    location: '',
+    status: 'Active',
+    condition: 'Good',
+    warranty: '',
+    notes: '',
     image: null
   });
 
@@ -30,9 +36,8 @@ export default function Assets() {
   const fetchAssets = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/assets');
+      const response = await fetch('/api/assets');
       const data = await response.json();
-
       if (data.success) {
         setAssets(data.assets);
       }
@@ -43,31 +48,7 @@ export default function Assets() {
     }
   };
 
-  const filteredAssets = assets.filter(asset => {
-    const matchesTab = activeTab === 'current' ? asset.status !== 'Disposed' : asset.status === 'Disposed';
-    const matchesSearch = 
-      asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      asset.assetId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (asset.location && asset.location.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesTab && matchesSearch;
-  });
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Active':
-        return 'bg-green-100 text-green-800';
-      case 'Under Maintenance':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Inactive':
-        return 'bg-gray-100 text-gray-800';
-      case 'Disposed':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const handleInputChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
@@ -75,97 +56,144 @@ export default function Assets() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, image: URL.createObjectURL(file) });
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image is too large. Maximum size is 5MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const img = new Image();
+        img.onload = () => {
+          // Create canvas for compression
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Calculate new dimensions (max 800x800)
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 800;
+          
+          if (width > height && width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          } else if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convert to base64 with compression (0.7 quality)
+          const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+          
+          setFormData({ ...formData, image: compressedImage });
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleUpload = async () => {
-    try {
-      const payload = {
-        name: formData.product,
-        category: formData.owner,
-        serialNumber: formData.model,
-        purchaseDate: formData.purchaseDate,
-        location: formData.location,
-        status: formData.status === 'In good condition' ? 'Active' : 
-                formData.status === 'Needs repair' ? 'Under Maintenance' : 'Active',
-        condition: formData.status === 'In good condition' ? 'Good' : 
-                   formData.status === 'Needs repair' ? 'Poor' : 'Good',
-        notes: `Quantity: ${formData.quantity}`
-      };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-      const response = await fetch('http://localhost:5000/api/assets', {
+    try {
+      const response = await fetch('/api/assets', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(formData)
       });
 
       const data = await response.json();
 
       if (data.success) {
-        await fetchAssets();
-        setShowUploadModal(false);
-        setFormData({
-          location: '',
-          product: '',
-          model: '',
-          quantity: 1,
-          status: '',
-          owner: '',
-          purchaseDate: '',
-          image: null
-        });
-        alert('Asset created successfully with ID: ' + data.asset.assetId);
+        alert('Asset created successfully!');
+        setShowModal(false);
+        resetForm();
+        fetchAssets();
       } else {
-        alert('Error creating asset: ' + data.message);
+        alert(data.message || 'Failed to create asset');
       }
     } catch (error) {
-      console.error('Error creating asset:', error);
       alert('Error creating asset');
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleArchive = async (id, currentStatus) => {
-    try {
-      const newStatus = currentStatus === 'Disposed' ? 'Active' : 'Disposed';
-      
-      const response = await fetch(`http://localhost:5000/api/assets/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        await fetchAssets();
-      }
-    } catch (error) {
-      console.error('Error updating asset:', error);
-    }
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      category: '',
+      description: '',
+      modelNumber: '',
+      serialNumber: '',
+      purchaseDate: '',
+      purchasePrice: '',
+      currentValue: '',
+      assignedTo: '',
+      location: '',
+      status: 'Active',
+      condition: 'Good',
+      warranty: '',
+      notes: '',
+      image: null
+    });
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this asset?')) {
+  const handleArchive = async (id) => {
+    if (window.confirm('Archive this asset? This is for auditing and compliance purposes.')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/assets/${id}`, {
-          method: 'DELETE'
+        const response = await fetch(`/api/assets/${id}/archive`, {
+          method: 'PUT',
         });
 
         const data = await response.json();
 
         if (data.success) {
-          await fetchAssets();
-          if (showViewModal) {
-            setShowViewModal(false);
-          }
+          alert('Asset archived successfully!');
+          fetchAssets();
+        } else {
+          alert(data.message || 'Failed to archive asset');
         }
       } catch (error) {
-        console.error('Error deleting asset:', error);
+        alert('Error archiving asset');
+        console.error('Error:', error);
+      }
+    }
+  };
+
+  const handleUnarchive = async (id) => {
+    if (window.confirm('Unarchive this asset and return it to active status?')) {
+      try {
+        const response = await fetch(`/api/assets/${id}/unarchive`, {
+          method: 'PUT',
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('Asset unarchived successfully!');
+          fetchAssets();
+        } else {
+          alert(data.message || 'Failed to unarchive asset');
+        }
+      } catch (error) {
+        alert('Error unarchiving asset');
+        console.error('Error:', error);
       }
     }
   };
@@ -177,63 +205,116 @@ export default function Assets() {
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
-  const getQuantity = (notes) => {
-    if (!notes) return 1;
-    const match = notes.match(/Quantity: (\d+)/);
-    return match ? match[1] : 1;
+  const filteredAssets = assets.filter(asset => {
+    const matchesSearch = 
+      asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      asset.assetId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (asset.category && asset.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (asset.location && asset.location.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesTab = activeTab === 'current' 
+      ? asset.status !== 'Archived' 
+      : asset.status === 'Archived';
+
+    return matchesSearch && matchesTab;
+  });
+
+  const stats = {
+    total: assets.length,
+    active: assets.filter(a => a.status === 'Active').length,
+    archived: assets.filter(a => a.status === 'Archived').length,
+    maintenance: assets.filter(a => a.status === 'Under Maintenance').length
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="p-8 pb-6 bg-gradient-to-r from-gray-700 to-gray-800">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                Asset Management
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Track and manage company assets with compliance archiving
+              </p>
+            </div>
             <button
-              onClick={() => navigate('/general')}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              title="Back to General"
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-sm font-medium"
             >
-              <ArrowLeft className="w-6 h-6 text-white" />
+              <Plus className="w-5 h-5" />
+              Add Asset
             </button>
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
-                <Archive className="w-6 h-6 text-white" />
-              </div>
+          </div>
+        </div>
+
+        {/* Stats Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-white">Assets Register</h1>
-                <p className="text-white/80 text-sm">
-                  Track, archive and unarchive company assets with image support and per-location IDs
-                </p>
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Assets</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </div>
-          <button
-            onClick={() => setShowUploadModal(true)}
-            className="flex items-center space-x-2 px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-lg"
-          >
-            <Upload className="w-5 h-5" />
-            <span>Upload Asset</span>
-          </button>
-        </div>
-      </div>
 
-      <div className="px-8 pb-8">
-        <div className="bg-white rounded-xl shadow-xl">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">Active</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.active}</p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">Archived</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.archived}</p>
+              </div>
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Archive className="w-6 h-6 text-gray-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">Maintenance</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.maintenance}</p>
+              </div>
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-yellow-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs and Search */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
           <div className="border-b border-gray-200">
-            <div className="flex items-center justify-between p-6">
-              <div className="flex space-x-1">
+            <div className="flex items-center justify-between px-6 py-4">
+              <div className="flex gap-4">
                 <button
                   onClick={() => setActiveTab('current')}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                  className={`px-4 py-2 font-medium rounded-lg transition-all ${
                     activeTab === 'current'
-                      ? 'bg-gray-700 text-white'
+                      ? 'bg-blue-600 text-white'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
@@ -241,16 +322,16 @@ export default function Assets() {
                 </button>
                 <button
                   onClick={() => setActiveTab('archived')}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                  className={`px-4 py-2 font-medium rounded-lg transition-all ${
                     activeTab === 'archived'
-                      ? 'bg-gray-700 text-white'
+                      ? 'bg-blue-600 text-white'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
                   Archived Assets
                 </button>
               </div>
-
+              
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -258,115 +339,97 @@ export default function Assets() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search assets..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
           </div>
 
-          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-800">
-                {activeTab === 'current' ? 'Current Assets' : 'Archived Assets'}
-              </h2>
-              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                {filteredAssets.length} items
-              </span>
-            </div>
-          </div>
-
+          {/* Assets Table */}
           <div className="overflow-x-auto">
             {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-700 mx-auto mb-4"></div>
-                <p className="text-gray-500">Loading assets...</p>
+              <div className="text-center py-16">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600 font-medium">Loading assets...</p>
+              </div>
+            ) : filteredAssets.length === 0 ? (
+              <div className="text-center py-16">
+                <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 font-medium">No assets found</p>
               </div>
             ) : (
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Image
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Asset ID
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Product
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Model
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Qty
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Owner/Dept
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Purchased
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Asset</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Category</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Location</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase">Assigned To</th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-200">
                   {filteredAssets.map((asset) => (
                     <tr key={asset.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
-                        <img
-                          src="/api/placeholder/80/80"
-                          alt={asset.name}
-                          className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                        />
+                        <div className="flex items-center gap-3">
+                          {asset.image ? (
+                            <img 
+                              src={asset.image} 
+                              alt={asset.name}
+                              className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <Package className="w-6 h-6 text-gray-400" />
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">{asset.name}</div>
+                            <div className="text-sm text-gray-500">{asset.assetId}</div>
+                          </div>
+                        </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium">
-                          {asset.assetId}
-                        </span>
-                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{asset.category}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{asset.location || '-'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">{asset.name}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{asset.serialNumber || '—'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{getQuantity(asset.notes)}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(asset.status)}`}>
-                          {asset.condition === 'Good' ? 'In good condition' : 
-                           asset.condition === 'Poor' ? 'Needs repair' : asset.status}
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                          asset.status === 'Active' ? 'bg-green-100 text-green-800' :
+                          asset.status === 'Archived' ? 'bg-gray-100 text-gray-800' :
+                          asset.status === 'Under Maintenance' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {asset.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{asset.category || '-'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{formatDate(asset.purchaseDate)}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center space-x-2">
+                      <td className="px-6 py-4 text-sm text-gray-700">{asset.assignedTo || '-'}</td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
                           <button
                             onClick={() => handleView(asset)}
-                            className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                            title="View details"
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="View Details"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button
-                            onClick={() => handleArchive(asset.id, asset.status)}
-                            className="p-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-                            title={asset.status === 'Disposed' ? "Unarchive" : "Archive"}
-                          >
-                            <Archive className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(asset.id)}
-                            className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {asset.status === 'Archived' ? (
+                            <button
+                              onClick={() => handleUnarchive(asset.id)}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              title="Unarchive"
+                            >
+                              <ArchiveRestore className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleArchive(asset.id)}
+                              className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                              title="Archive"
+                            >
+                              <Archive className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -374,283 +437,330 @@ export default function Assets() {
                 </tbody>
               </table>
             )}
-
-            {!loading && filteredAssets.length === 0 && (
-              <div className="text-center py-12">
-                <Archive className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">No assets found</p>
-                <p className="text-gray-400 text-sm">
-                  {searchQuery ? 'Try a different search term' : 'Upload your first asset to get started'}
-                </p>
-              </div>
-            )}
           </div>
         </div>
-      </div>
 
-      {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Upload Asset</h2>
-                <p className="text-sm text-gray-500 mt-1">Asset ID will be auto-generated (AST-001, AST-002...)</p>
-              </div>
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Location
-                  </label>
-                  <select
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+        {/* Add Asset Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-8 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Add New Asset</h2>
+                    <p className="text-gray-600 mt-1">Asset ID will be auto-generated</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowModal(false);
+                      resetForm();
+                    }}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    <option value="">Select Location</option>
-                    <option value="Storage Room">Storage Room</option>
-                    <option value="Main Office">Main Office</option>
-                    <option value="Executive Office">Executive Office</option>
-                    <option value="Conference Room">Conference Room</option>
-                    <option value="Reception">Reception</option>
-                    <option value="IT Department">IT Department</option>
-                    <option value="Finance Department">Finance Department</option>
-                    <option value="HR Department">HR Department</option>
-                    <option value="Warehouse">Warehouse</option>
-                    <option value="Cafeteria">Cafeteria</option>
-                    <option value="Parking Lot">Parking Lot</option>
-                    <option value="Server Room">Server Room</option>
-                    <option value="Archive Room">Archive Room</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Product Name/Category
-                  </label>
-                  <input
-                    type="text"
-                    name="product"
-                    value={formData.product}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter product name"
-                  />
+                    <X className="w-6 h-6 text-gray-500" />
+                  </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Model/Product No
-                  </label>
-                  <input
-                    type="text"
-                    name="model"
-                    value={formData.model}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Model number"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quantity
-                  </label>
-                  <input
-                    type="number"
-                    name="quantity"
-                    value={formData.quantity}
-                    onChange={handleInputChange}
-                    min="1"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  >
-                    <option value="">Select Status</option>
-                    <option value="In good condition">In good condition</option>
-                    <option value="Needs repair">Needs repair</option>
-                    <option value="Under maintenance">Under maintenance</option>
-                  </select>
-                </div>
-              </div>
+              <form onSubmit={handleSubmit} className="p-8">
+                <div className="space-y-6">
+                  {/* Asset Image */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Asset Image
+                    </label>
+                    <div className="flex items-center gap-4">
+                      {formData.image ? (
+                        <img 
+                          src={formData.image} 
+                          alt="Preview"
+                          className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                        />
+                      ) : (
+                        <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                          <Package className="w-12 h-12 text-gray-400" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/gif,image/webp"
+                          onChange={handleImageChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-2">JPG, PNG, GIF or WEBP (Max 5MB)</p>
+                      </div>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Assigned To (Department)
-                  </label>
-                  <select
-                    name="owner"
-                    value={formData.owner}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  >
-                    <option value="">Select Department</option>
-                    <option value="General">General</option>
-                    <option value="Admin & Finance">Admin & Finance</option>
-                    <option value="Technical">Technical</option>
-                    <option value="Corporate Affairs">Corporate Affairs</option>
-                    <option value="Directorate">Directorate</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Purchase Date
-                  </label>
-                  <input
-                    type="date"
-                    name="purchaseDate"
-                    value={formData.purchaseDate}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Product Image (Optional)
-                </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-500 transition-colors">
-                  <input
-                    type="file"
-                    onChange={handleImageChange}
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label htmlFor="image-upload" className="cursor-pointer">
-                    {formData.image ? (
-                      <img
-                        src={formData.image}
-                        alt="Preview"
-                        className="w-32 h-32 object-cover rounded-lg mx-auto mb-2"
+                  {/* Basic Info */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Asset Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        required
                       />
-                    ) : (
-                      <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    )}
-                    <p className="text-sm text-gray-600">
-                      {formData.image ? 'Click to change image' : 'Click to upload image'}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      JPG/PNG/GIF/WEBP up to 5MB
-                    </p>
-                  </label>
-                </div>
-              </div>
-            </div>
+                    </div>
 
-            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpload}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                Upload Asset
-              </button>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Category *
+                      </label>
+                      <select
+                        name="category"
+                        value={formData.category}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        required
+                      >
+                        <option value="">Select Category</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Furniture">Furniture</option>
+                        <option value="Vehicles">Vehicles</option>
+                        <option value="Equipment">Equipment</option>
+                        <option value="Software">Software</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Model Number
+                      </label>
+                      <input
+                        type="text"
+                        name="modelNumber"
+                        value={formData.modelNumber}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Serial Number
+                      </label>
+                      <input
+                        type="text"
+                        name="serialNumber"
+                        value={formData.serialNumber}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Purchase Date
+                      </label>
+                      <input
+                        type="date"
+                        name="purchaseDate"
+                        value={formData.purchaseDate}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Location
+                      </label>
+                      <select
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Location</option>
+                        <option value="Finance and Admin">Finance and Admin</option>
+                        <option value="Technical Department">Technical Department</option>
+                        <option value="Corporate Affairs">Corporate Affairs</option>
+                        <option value="Directorate">Directorate</option>
+                        <option value="Conference Room">Conference Room</option>
+                        <option value="Reception">Reception</option>
+                        <option value="Main Office">Main Office</option>
+                        <option value="Storage Room">Storage Room</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Assigned To
+                      </label>
+                      <input
+                        type="text"
+                        name="assignedTo"
+                        value={formData.assignedTo}
+                        onChange={handleChange}
+                        placeholder="Department or person"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Condition
+                      </label>
+                      <select
+                        name="condition"
+                        value={formData.condition}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Poor">Poor</option>
+                      </select>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                      </label>
+                      <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        rows="3"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      ></textarea>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Notes
+                      </label>
+                      <textarea
+                        name="notes"
+                        value={formData.notes}
+                        onChange={handleChange}
+                        rows="2"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowModal(false);
+                      resetForm();
+                    }}
+                    className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-white transition-all disabled:opacity-50"
+                  >
+                    {loading ? 'Creating...' : 'Create Asset'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {showViewModal && selectedAsset && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">Asset Details</h2>
-              <button
-                onClick={() => setShowViewModal(false)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
+        {/* View Asset Modal */}
+        {showViewModal && selectedAsset && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-8 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{selectedAsset.name}</h2>
+                    <p className="text-gray-600 font-medium mt-1">{selectedAsset.assetId}</p>
+                  </div>
+                  <button
+                    onClick={() => setShowViewModal(false)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <X className="w-6 h-6 text-gray-500" />
+                  </button>
+                </div>
+              </div>
 
-            <div className="p-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="col-span-2">
-                  <img
-                    src="/api/placeholder/400/300"
-                    alt={selectedAsset.name}
-                    className="w-full h-64 object-cover rounded-lg border border-gray-200"
-                  />
-                </div>
+              <div className="p-8">
+                {selectedAsset.image && (
+                  <div className="mb-6">
+                    <img 
+                      src={selectedAsset.image} 
+                      alt={selectedAsset.name}
+                      className="w-full h-64 object-cover rounded-lg border border-gray-200"
+                    />
+                  </div>
+                )}
 
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Asset ID</label>
-                  <p className="text-lg font-semibold text-gray-900">{selectedAsset.assetId}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Location</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.location || '-'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Product</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Model</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.serialNumber || '—'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Quantity</label>
-                  <p className="text-lg text-gray-900">{getQuantity(selectedAsset.notes)}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Status</label>
-                  <p>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedAsset.status)}`}>
-                      {selectedAsset.condition === 'Good' ? 'In good condition' : 
-                       selectedAsset.condition === 'Poor' ? 'Needs repair' : selectedAsset.status}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Category</p>
+                    <p className="text-lg font-medium text-gray-900">{selectedAsset.category}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Status</p>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                      selectedAsset.status === 'Active' ? 'bg-green-100 text-green-800' :
+                      selectedAsset.status === 'Archived' ? 'bg-gray-100 text-gray-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {selectedAsset.status}
                     </span>
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Assigned To (Department)</label>
-                  <p className="text-lg text-gray-900">{selectedAsset.category || '-'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Purchase Date</label>
-                  <p className="text-lg text-gray-900">{formatDate(selectedAsset.purchaseDate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Model Number</p>
+                    <p className="text-lg font-medium text-gray-900">{selectedAsset.modelNumber || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Serial Number</p>
+                    <p className="text-lg font-medium text-gray-900">{selectedAsset.serialNumber || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Location</p>
+                    <p className="text-lg font-medium text-gray-900">{selectedAsset.location || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Assigned To</p>
+                    <p className="text-lg font-medium text-gray-900">{selectedAsset.assignedTo || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Condition</p>
+                    <p className="text-lg font-medium text-gray-900">{selectedAsset.condition}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Purchase Date</p>
+                    <p className="text-lg font-medium text-gray-900">{formatDate(selectedAsset.purchaseDate)}</p>
+                  </div>
+                  {selectedAsset.description && (
+                    <div className="md:col-span-2">
+                      <p className="text-sm text-gray-500 mb-1">Description</p>
+                      <p className="text-lg text-gray-900">{selectedAsset.description}</p>
+                    </div>
+                  )}
+                  {selectedAsset.notes && (
+                    <div className="md:col-span-2">
+                      <p className="text-sm text-gray-500 mb-1">Notes</p>
+                      <p className="text-lg text-gray-900">{selectedAsset.notes}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-
-            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
-              <button
-                onClick={() => setShowViewModal(false)}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                Close
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
