@@ -113,7 +113,7 @@ export default function Login() {
 
           <div className="mt-auto">
             <p className="text-white/60 text-sm">
-              © 2025 GoGMI Intranet. All rights reserved.
+              © 2026 GoGMI Intranet. All rights reserved.
             </p>
           </div>
         </div>
