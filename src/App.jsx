@@ -75,7 +75,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/request-access" element={<RequestAccess />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        
 
         <Route path="/my-payslips" element={
           <ProtectedRoute>

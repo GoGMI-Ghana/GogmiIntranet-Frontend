@@ -11,7 +11,7 @@ export default function Layout({ children }) {
   const location = useLocation();
   
   // Hide sidebar on Employee Data page for full-screen experience
-  const isEmployeeDataPage = location.pathname === '/admin-finance/employee-data';
+  const isEmployeeDataPage = location.pathname === '/admin-finance/employee-data' || location.pathname === '/admin-finance/payroll';
 
   return (
     <div className="min-h-screen bg-gray-50">

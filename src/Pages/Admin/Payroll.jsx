@@ -31,14 +31,14 @@ export default function Payroll() {
     totalSSF: '',
     employerPF: '',
     totalPF: '',
-    ssfEmployee: '',
+    ssnit: '',
     incomeTax: '',
     providentFund: '',
     loans: '',
     otherDeductions: '',
     bankName: '',
     accountNumber: '',
-    psfNo: '',
+    ssnitNo: '',
     taxableBenefits: ''
   });
 
@@ -111,7 +111,7 @@ export default function Payroll() {
                     parseFloat(formData.bonus || 0) +
                     parseFloat(formData.otherAllowances || 0);
 
-    const deductions = parseFloat(formData.ssfEmployee || 0) +
+    const deductions = parseFloat(formData.ssnit || 0) +
                       parseFloat(formData.incomeTax || 0) +
                       parseFloat(formData.providentFund || 0) +
                       parseFloat(formData.loans || 0) +
@@ -162,14 +162,14 @@ export default function Payroll() {
           totalSSF: '',
           employerPF: '',
           totalPF: '',
-          ssfEmployee: '',
+          ssnit: '',
           incomeTax: '',
           providentFund: '',
           loans: '',
           otherDeductions: '',
           bankName: '',
           accountNumber: '',
-          psfNo: '',
+          ssnitNo: '',
           taxableBenefits: ''
         });
         setSelectedEmployee(null);
@@ -385,12 +385,12 @@ export default function Payroll() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        PSF No
+                        SSNIT No
                       </label>
                       <input
                         type="text"
-                        name="psfNo"
-                        value={formData.psfNo}
+                        name="ssnitNo"
+                        value={formData.ssnitNo}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                       />
@@ -470,7 +470,7 @@ export default function Payroll() {
                 </div>
 
                 {/* EMPLOYER CONTRIBUTIONS */}
-                <div className="border-t border-gray-200 pt-6">
+                <div className="border-t border-gray-200 pt-6 hidden">
                   <h3 className="text-lg font-semibold mb-4 text-gray-700">Employer Contributions</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -537,13 +537,13 @@ export default function Payroll() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        SSF Employee
+                        SSNIT
                       </label>
                       <input
                         type="number"
                         step="0.01"
-                        name="ssfEmployee"
-                        value={formData.ssfEmployee}
+                        name="ssnit"
+                        value={formData.ssnit}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                       />

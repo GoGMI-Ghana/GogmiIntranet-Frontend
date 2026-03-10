@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Search, Edit2, Eye, UserPlus, X, Save, Download, Upload, 
   Filter, RefreshCw, MoreVertical, Trash2, Mail, Phone,
   Calendar, MapPin, Briefcase, Building2, ChevronLeft, ChevronRight,
-  Users, FileSpreadsheet
+  Users, FileSpreadsheet, Home
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 export default function EmployeeData() {
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -244,6 +246,20 @@ export default function EmployeeData() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full p-6 lg:p-8">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm mb-6">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <Home className="w-4 h-4" />
+            <span>Dashboard</span>
+          </button>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <button onClick={() => navigate('/admin-finance')} className="text-gray-600 hover:text-gray-900 transition-colors">
+            Finance & Admin
+          </button>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <span className="text-gray-900 font-semibold">Employee Data</span>
+        </div>
+
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between flex-wrap gap-4">

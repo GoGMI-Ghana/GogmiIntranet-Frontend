@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Search, Edit2, Eye, UserPlus, X, Save } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Edit2, Eye, UserPlus, X, Save , Home, ChevronRight } from 'lucide-react';
 
 export default function EmployeeData() {
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -111,7 +113,28 @@ export default function EmployeeData() {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="mb-8">
+      
+        {/* Breadcrumb Navigation */}
+        <div className="flex items-center gap-2 text-sm mb-6">
+          <button 
+            onClick={() => navigate('/')} 
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            <span>Dashboard</span>
+          </button>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <button 
+            onClick={() => navigate('/admin-finance')} 
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Finance & Admin
+          </button>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <span className="text-gray-900 font-semibold">Employee Data</span>
+        </div>
+
+        <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 text-gray-800">
           Employee Data Management
         </h1>
