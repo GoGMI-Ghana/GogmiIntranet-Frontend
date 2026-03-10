@@ -107,7 +107,7 @@ export default function Login() {
             <div className="w-24 h-1 rounded-full mb-8" 
               style={{ background: '#8e3400' }}></div>
             <p className="text-white/90 text-lg leading-relaxed max-w-md">
-              Access the company Intranet portal. Manage your work, collaborate with teams and stay connected on all updates.
+              Access the company's Intranet portal. Manage your work, collaborate with teams and stay connected on all updates.
             </p>
           </div>
 
