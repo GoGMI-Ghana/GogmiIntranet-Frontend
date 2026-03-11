@@ -235,7 +235,7 @@ export default function Login() {
                     className="text-white font-semibold hover:underline transition-all"
                     style={{ color: '#8e3400' }}
                   >
-                    Request Access
+                    Contact the Administrator
                   </button>
                 </p>
               </div>
