@@ -228,16 +228,17 @@ export default function Login() {
 
               <div className="mt-6 text-center pt-4 border-t border-white/10">
                 <p className="text-white/60 text-sm">
-                  Don't have an account?{' '}
+                  Don't have login credentials?{' '}
                   <button
                     type="button"
-                    onClick={() => navigate('/request-access')}
+                   
                     className="text-white font-semibold hover:underline transition-all"
                     style={{ color: '#8e3400' }}
                   >
                     Contact the Administrator
                   </button>
                 </p>
+                <p className="text-white/60 text-sm">email : info@gogmi.org.gh</p>
               </div>
             </form>
           </div>
