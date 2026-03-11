@@ -2,10 +2,6 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://intranet.gogmi.org.gh/api/:path*"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
