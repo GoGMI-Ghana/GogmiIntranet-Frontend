@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import * as XLSX from 'xlsx';
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://intranet.gogmi.org.gh';
+import { Users, Download, Search, Calendar } from 'lucide-react';
 
 const ImswgForum = () => {
-  const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [count, setCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     fetchRegistrations();
@@ -19,152 +14,144 @@ const ImswgForum = () => {
   const fetchRegistrations = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/api/imswg/registrations`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/imswg/registrations`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       
-      setRegistrations(response.data.data);
-      setCount(response.data.count);
-      setLoading(false);
+      if (response.ok) {
+        const data = await response.json();
+        setRegistrations(data.data || []);
+        setTotalCount(data.count || 0);
+      }
     } catch (error) {
       console.error('Error fetching registrations:', error);
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleExportCSV = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/api/imswg/export/csv`, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob'
-      });
-      
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'imswg_registrations.csv');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Error exporting CSV:', error);
-    }
+  const handleExportCSV = () => {
+    const token = localStorage.getItem('token');
+    window.open(`${import.meta.env.VITE_API_URL}/api/imswg/export/csv?token=${token}`, '_blank');
   };
 
-  const handleExportExcel = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/api/imswg/export/excel`, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob'
-      });
-      
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'imswg_registrations.xlsx');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Error exporting Excel:', error);
-    }
+  const handleExportExcel = () => {
+    const token = localStorage.getItem('token');
+    window.open(`${import.meta.env.VITE_API_URL}/api/imswg/export/excel?token=${token}`, '_blank');
   };
 
   const filteredRegistrations = registrations.filter(reg =>
-    reg.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    reg.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    reg.country_of_residence.toLowerCase().includes(searchTerm.toLowerCase())
+    reg.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    reg.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    reg.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    reg.position?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">Loading...</div>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">Loading registrations...</div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6">
       {/* Breadcrumb */}
       <div className="mb-6">
-        <nav className="flex items-center text-sm text-gray-600">
-          <button onClick={() => navigate('/dashboard')} className="hover:text-gray-900">
-            Dashboard
-          </button>
+        <nav className="text-sm text-gray-500">
+          <span>Dashboard</span>
           <span className="mx-2">/</span>
-          <button onClick={() => navigate('/general')} className="hover:text-gray-900">
-            General
-          </button>
+          <span>General</span>
           <span className="mx-2">/</span>
           <span className="text-gray-900 font-medium">IMSWG Forum 2026</span>
         </nav>
       </div>
 
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">IMSWG Forum 2026</h1>
-            <p className="text-gray-600 mt-1">International Maritime Security Working Group - Quarter 1 Forum</p>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">IMSWG Forum 2026 Registrations</h1>
+        <p className="text-gray-600 mt-1">View and manage forum registrations</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Total Registrations</p>
+              <p className="text-3xl font-bold text-blue-600 mt-2">{totalCount}</p>
+            </div>
+            <Users className="w-12 h-12 text-blue-500" />
           </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Latest Registration</p>
+              <p className="text-lg font-semibold text-gray-900 mt-2">
+                {registrations[0]?.full_name || 'N/A'}
+              </p>
+            </div>
+            <Calendar className="w-12 h-12 text-green-500" />
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Filtered Results</p>
+              <p className="text-3xl font-bold text-purple-600 mt-2">{filteredRegistrations.length}</p>
+            </div>
+            <Search className="w-12 h-12 text-purple-500" />
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Export */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <div className="flex flex-col md:flex-row justify-between gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search by name, email, country, or position..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          
           <div className="flex gap-3">
             <button
               onClick={handleExportCSV}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
+              <Download className="w-4 h-4" />
               Export CSV
             </button>
             <button
               onClick={handleExportExcel}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
+              <Download className="w-4 h-4" />
               Export Excel
             </button>
           </div>
         </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div className="bg-gray-700 text-white p-4 rounded-lg">
-            <p className="text-sm font-medium">Total Registrations</p>
-            <p className="text-3xl font-bold mt-2">{count}</p>
-          </div>
-          <div className="bg-gray-100 p-4 rounded-lg">
-            <p className="text-sm font-medium text-gray-600">Latest Registration</p>
-            <p className="text-xl font-semibold mt-2 text-gray-800">
-              {registrations[0] ? new Date(registrations[0].created_at).toLocaleDateString() : 'N/A'}
-            </p>
-          </div>
-          <div className="bg-gray-100 p-4 rounded-lg">
-            <p className="text-sm font-medium text-gray-600">Filtered Results</p>
-            <p className="text-xl font-semibold mt-2 text-gray-800">{filteredRegistrations.length}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Search */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search by name, email, or country..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
-        />
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
-                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Full Name
                 </th>
@@ -178,7 +165,7 @@ const ImswgForum = () => {
                   Country
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Professional Title
+                  Position
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Institution
@@ -189,34 +176,39 @@ const ImswgForum = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredRegistrations.map((reg) => (
-                <tr key={reg.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {reg.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {reg.full_name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {reg.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {reg.whatsapp_number || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {reg.country_of_residence}
-                  td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {reg.professional_title}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {reg.institution || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(reg.created_at).toLocaleString()}
+              {filteredRegistrations.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                    No registrations found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredRegistrations.map((reg) => (
+                  <tr key={reg.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {reg.full_name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {reg.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {reg.whatsapp_number || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {reg.country}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {reg.position}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {reg.institution || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(reg.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
