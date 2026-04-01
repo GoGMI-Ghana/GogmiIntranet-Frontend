@@ -14,10 +14,10 @@ const Imswg = () => {
     fetchApplications();
   }, []);
 
-  const fetchApplications = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/imswg/applications`, {
+ const fetchApplications = async () => {
+   try {
+     const token = localStorage.getItem('token');
+     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/imswg-apps/applications`, {  // ← CORRECT
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -37,7 +37,7 @@ const Imswg = () => {
   const handleStatusUpdate = async (id, status) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/imswg/applications/${id}/status`, {
+   const response = await fetch(`${import.meta.env.VITE_API_URL}/api/imswg-apps/applications/${id}/status`, {  // ← CORRECT
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
