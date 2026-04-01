@@ -35,9 +35,14 @@ export default function General() {
       description: 'IMSWG data management and reporting',
       path: '/general/imswg'
     },
+    {
+      id: 'imswg-forum',
+      name: 'IMSWG Forum 2026',
+      icon: Users,
+      description: 'View IMSWG Forum 2026 registrations',
+      path: '/general/imswg-forum'
+    },
    
-
-
     {
       id: 'my-leave',
       name: 'My Leave',
