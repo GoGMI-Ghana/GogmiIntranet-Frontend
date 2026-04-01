@@ -45,6 +45,7 @@ import CompanyStrategy from './Pages/Directorate/CompanyStrategy';
 import AdvisoryBoard from './Pages/Directorate/AdvisoryBoard';
 import CompanyPerformance from './Pages/Directorate/CompanyPerformance';
 import MOU from './Pages/General/MOU';
+import ImswgForum from './Pages/General/ImswgForum';
 
 
 import DepartmentProtectedRoute from './Components/DepartmentProtectedRoute';
@@ -263,6 +264,12 @@ function App() {
           <ProtectedRoute>
             <AnnouncementsManagement />
           </ProtectedRoute>
+        } />
+
+        <Route path="/general/imswg-forum" element={
+        <ProtectedRoute>
+          <ImswgForum />
+         </ProtectedRoute>
         } />
 
         <Route path="/payslip/:id" element={
