@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import DepartmentProtection from '../Components/DepartmentProtection';
-import { FileText, Users, Package, Database, UserSquare2, Megaphone, Calendar } from 'lucide-react';
+import { FileText, Users, Package, Database, UserSquare2, Megaphone, Calendar, GraduationCap } from 'lucide-react';
 
 export default function General() {
   const navigate = useNavigate();
@@ -27,7 +27,6 @@ export default function General() {
       description: 'Stakeholder management',
       path: '/general/stakeholders'
     },
-    
     {
       id: 'imswg',
       name: 'IMSWG',
@@ -42,7 +41,13 @@ export default function General() {
       description: 'View IMSWG Forum 2026 registrations',
       path: '/general/imswg-forum'
     },
-   
+    {
+      id: 'maritime-governance-course',
+      name: 'Maritime Governance Course',
+      icon: GraduationCap,
+      description: 'Course registrations and revenue tracking',
+      path: '/general/maritime-governance-course'
+    },
     {
       id: 'my-leave',
       name: 'My Leave',
@@ -50,15 +55,13 @@ export default function General() {
       description: 'Request leave and view leave balance',
       path: '/general/my-leave'
     },
-{
+    {
       id: 'mou',
       name: 'MoU',
       icon: FileText,
       description: 'Memorandum of Understanding management',
       path: '/general/mou'
     },
-
-
   ];
 
   return (
@@ -72,7 +75,6 @@ export default function General() {
             General operations and management
           </p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {subModules.map((module) => {
             const Icon = module.icon;
