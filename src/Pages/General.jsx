@@ -42,6 +42,13 @@ export default function General() {
       path: '/general/imswg-forum'
     },
     {
+      id: 'memberships',
+      name: 'Memberships',
+      icon: Users,
+      description: 'Individual and institutional membership applications',
+      path: '/general/memberships'
+    },
+    {
       id: 'maritime-governance-course',
       name: 'Maritime Governance Course',
       icon: GraduationCap,
