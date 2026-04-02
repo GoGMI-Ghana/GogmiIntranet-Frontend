@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import DepartmentProtection from '../Components/DepartmentProtection';
 import { FileText, Users, Package, Database, UserSquare2, Megaphone, Calendar, GraduationCap } from 'lucide-react';
-
+import { AlertTriangle } from 'lucide-react'; // Add to imports
 export default function General() {
   const navigate = useNavigate();
 
@@ -47,6 +47,13 @@ export default function General() {
       icon: GraduationCap,
       description: 'Course registrations and revenue tracking',
       path: '/general/maritime-governance-course'
+    },
+    {
+      id: 'marine-casualty-course',
+      name: 'Marine Casualty Course',
+      icon: AlertTriangle,
+      description: 'Investigation & Safety Management registrations',
+      path: '/general/marine-casualty-course'
     },
     {
       id: 'my-leave',
