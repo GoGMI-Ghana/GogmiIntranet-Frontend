@@ -39,6 +39,7 @@ export default function Breadcrumbs() {
     'advocacy': 'Advocacy',
     'capacity-building': 'Capacity Building',
     'marine-casualty-course': 'Marine Casualty Course',
+    'memberships': 'Memberships',
   };
 
   // Build breadcrumb array from current path
