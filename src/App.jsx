@@ -48,6 +48,7 @@ import MOU from './Pages/General/MOU';
 import ImswgForum from './Pages/General/ImswgForum';
 import MaritimeGovernanceCourse from './Pages/General/MaritimeGovernanceCourse';
 import MarineCasualtyCourse from './Pages/General/MarineCasualtyCourse';
+import Memberships from './Pages/General/Memberships';
 
 
 import DepartmentProtectedRoute from './Components/DepartmentProtectedRoute';
@@ -342,6 +343,17 @@ function App() {
             <MarineCasualtyCourse />
           </ProtectedRoute>
         } />
+
+
+        <Route path="/general/memberships" element={
+          <ProtectedRoute>
+            <Memberships />
+          </ProtectedRoute>
+        } />
+        
+        
+        
+                
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
