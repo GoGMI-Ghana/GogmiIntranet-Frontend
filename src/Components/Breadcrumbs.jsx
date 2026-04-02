@@ -15,6 +15,8 @@ export default function Breadcrumbs() {
     'stakeholders': 'Stakeholders',
     'assets': 'Assets',
     'imswg': 'IMSWG',
+    'imswg-forum': 'IMSWG Forum 2026',
+    'maritime-governance-course': 'Maritime Governance Course',
     'employee-data': 'Employee Data',
     'payroll': 'Payroll',
     'budgets': 'Budgets',
