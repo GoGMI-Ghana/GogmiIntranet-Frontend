@@ -38,6 +38,7 @@ export default function Breadcrumbs() {
     'research': 'Research',
     'advocacy': 'Advocacy',
     'capacity-building': 'Capacity Building',
+    'marine-casualty-course': 'Marine Casualty Course',
   };
 
   // Build breadcrumb array from current path
