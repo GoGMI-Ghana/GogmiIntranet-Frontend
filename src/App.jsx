@@ -46,6 +46,7 @@ import AdvisoryBoard from './Pages/Directorate/AdvisoryBoard';
 import CompanyPerformance from './Pages/Directorate/CompanyPerformance';
 import MOU from './Pages/General/MOU';
 import ImswgForum from './Pages/General/ImswgForum';
+import MaritimeGovernanceCourse from './Pages/General/MaritimeGovernanceCourse';
 
 
 import DepartmentProtectedRoute from './Components/DepartmentProtectedRoute';
@@ -328,6 +329,12 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
+
+        <Route path="/general/maritime-governance-course" element={
+            <ProtectedRoute>
+              <MaritimeGovernanceCourse />
+            </ProtectedRoute>
+          } />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
