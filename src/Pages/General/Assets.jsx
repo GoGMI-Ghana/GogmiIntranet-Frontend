@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Plus, X, Search, Eye, Archive, ArchiveRestore, Download, FileSpreadsheet, Edit, Home, ChevronRight } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { API_URL } from '../../config/api';
 
 export default function Assets() {
   const [assets, setAssets] = useState([]);
@@ -36,7 +37,7 @@ export default function Assets() {
   const fetchAssets = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/assets');
+      const response = await fetch(`${API_URL}/api/assets`);
       const data = await response.json();
       if (data.success) {
         setAssets(data.assets);
@@ -90,7 +91,7 @@ export default function Assets() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch('/api/assets', {
+     const response = await fetch(`${API_URL}/api/assets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -121,7 +122,7 @@ export default function Assets() {
   const handleArchive = async (id) => {
     if (window.confirm('Archive this asset for compliance?')) {
       try {
-        const response = await fetch(`/api/assets/${id}/archive`, { method: 'PUT' });
+        const response = await fetch(`${API_URL}/api/assets/${id}/archive`, { method: 'PUT' });
         const data = await response.json();
         if (data.success) {
           alert('Archived!');
@@ -136,7 +137,7 @@ export default function Assets() {
   const handleUnarchive = async (id) => {
     if (window.confirm('Unarchive this asset?')) {
       try {
-        const response = await fetch(`/api/assets/${id}/unarchive`, { method: 'PUT' });
+        const response = await fetch(`${API_URL}/api/assets/${id}/unarchive`, { method: 'PUT' });
         const data = await response.json();
         if (data.success) {
           alert('Unarchived!');
@@ -171,7 +172,7 @@ export default function Assets() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch(`/api/assets/${editingAsset.id}`, {
+      const response = await fetch(`${API_URL}/api/assets/${editingAsset.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
