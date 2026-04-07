@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, MapPin, User, Calendar, Clock, Edit2, Search, Bell, Gift, Award, TrendingUp, Users, ChevronRight, Megaphone, Lock, X, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../config';
+import { API_URL } from '../config/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
