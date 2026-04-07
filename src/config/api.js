@@ -1,1 +1,1 @@
-export const API_URL = import.meta.env.VITE_API_URL || 'https://intranet.gogmi.org.gh';
+export const API_URL = import.meta.env.VITE_API_URL || 'https://api.intranet.gogmi.org.gh';
