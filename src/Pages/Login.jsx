@@ -47,7 +47,8 @@ export default function Login() {
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem('user', JSON.stringify(data.user));
+       localStorage.setItem('token', data.token);
+       localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/');
       } else {
         setError(data.message || 'Login failed');
