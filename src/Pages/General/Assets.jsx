@@ -30,6 +30,14 @@ export default function Assets() {
     image: null
   });
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
   useEffect(() => {
     fetchAssets();
   }, []);
@@ -37,10 +45,12 @@ export default function Assets() {
   const fetchAssets = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/assets`);
+      const response = await fetch(`${API_URL}/api/assets`, {
+        headers: getAuthHeaders()
+      });
       const data = await response.json();
       if (data.success) {
-        setAssets(data.assets);
+        setAssets(data.data || []);
       }
     } catch (error) {
       console.error('Error fetching assets:', error);
@@ -68,7 +78,9 @@ export default function Assets() {
           const ctx = canvas.getContext('2d');
           let width = img.width;
           let height = img.height;
-          const maxSize = 800;
+          
+          // More aggressive compression - max 400px
+          const maxSize = 400;
           if (width > height && width > maxSize) {
             height = (height * maxSize) / width;
             width = maxSize;
@@ -76,10 +88,21 @@ export default function Assets() {
             width = (width * maxSize) / height;
             height = maxSize;
           }
+          
           canvas.width = width;
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
-          setFormData({ ...formData, image: canvas.toDataURL('image/jpeg', 0.7) });
+          
+          // Compress to 50% quality
+          const compressed = canvas.toDataURL('image/jpeg', 0.5);
+          
+          // Check if still too large (>500KB base64)
+          if (compressed.length > 500000) {
+            alert('Image still too large after compression. Try a smaller image.');
+            return;
+          }
+          
+          setFormData({ ...formData, image: compressed });
         };
         img.src = reader.result;
       };
@@ -91,9 +114,9 @@ export default function Assets() {
     e.preventDefault();
     setLoading(true);
     try {
-     const response = await fetch(`${API_URL}/api/assets`, {
+      const response = await fetch(`${API_URL}/api/assets`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(formData)
       });
       const data = await response.json();
@@ -107,6 +130,7 @@ export default function Assets() {
       }
     } catch (error) {
       alert('Error creating asset');
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
@@ -122,7 +146,10 @@ export default function Assets() {
   const handleArchive = async (id) => {
     if (window.confirm('Archive this asset for compliance?')) {
       try {
-        const response = await fetch(`${API_URL}/api/assets/${id}/archive`, { method: 'PUT' });
+        const response = await fetch(`${API_URL}/api/assets/${id}/archive`, { 
+          method: 'PUT',
+          headers: getAuthHeaders()
+        });
         const data = await response.json();
         if (data.success) {
           alert('Archived!');
@@ -137,7 +164,10 @@ export default function Assets() {
   const handleUnarchive = async (id) => {
     if (window.confirm('Unarchive this asset?')) {
       try {
-        const response = await fetch(`${API_URL}/api/assets/${id}/unarchive`, { method: 'PUT' });
+        const response = await fetch(`${API_URL}/api/assets/${id}/unarchive`, { 
+          method: 'PUT',
+          headers: getAuthHeaders()
+        });
         const data = await response.json();
         if (data.success) {
           alert('Unarchived!');
@@ -155,10 +185,10 @@ export default function Assets() {
       name: asset.name,
       category: asset.category,
       description: asset.description || '',
-      modelNumber: asset.modelNumber || '',
-      serialNumber: asset.serialNumber || '',
-      purchaseDate: asset.purchaseDate ? asset.purchaseDate.split('T')[0] : '',
-      assignedTo: asset.assignedTo || '',
+      modelNumber: asset.model_number || '',
+      serialNumber: asset.serial_number || '',
+      purchaseDate: asset.purchase_date ? asset.purchase_date.split('T')[0] : '',
+      assignedTo: asset.assigned_to || '',
       location: asset.location || '',
       condition: asset.condition,
       notes: asset.notes || '',
@@ -174,7 +204,7 @@ export default function Assets() {
     try {
       const response = await fetch(`${API_URL}/api/assets/${editingAsset.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(formData)
       });
       const data = await response.json();
@@ -197,8 +227,12 @@ export default function Assets() {
 
   const handleExportExcel = () => {
     const data = filteredAssets.map(a => ({
-      'Asset ID': a.assetId, 'Name': a.name, 'Category': a.category,
-      'Location': a.location || '', 'Status': a.status, 'Assigned To': a.assignedTo || ''
+      'Asset ID': a.id,
+      'Name': a.name,
+      'Category': a.category,
+      'Location': a.location || '',
+      'Status': a.status,
+      'Assigned To': a.assigned_to || ''
     }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -209,7 +243,7 @@ export default function Assets() {
   const handleExportCSV = () => {
     const headers = ['Asset ID', 'Name', 'Category', 'Location', 'Status', 'Assigned To'];
     const rows = filteredAssets.map(a => [
-      a.assetId, a.name, a.category, a.location || '', a.status, a.assignedTo || ''
+      a.id, a.name, a.category, a.location || '', a.status, a.assigned_to || ''
     ]);
     const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -222,15 +256,15 @@ export default function Assets() {
 
   const filteredAssets = assets.filter(a => {
     const matches = a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    a.assetId.toLowerCase().includes(searchQuery.toLowerCase());
-    const tabMatch = activeTab === 'current' ? a.status !== 'Archived' : a.status === 'Archived';
+                    (a.id && a.id.toString().includes(searchQuery));
+    const tabMatch = activeTab === 'current' ? a.status !== 'archived' : a.status === 'archived';
     return matches && tabMatch;
   });
 
   const stats = {
     total: assets.length,
-    active: assets.filter(a => a.status === 'Active').length,
-    archived: assets.filter(a => a.status === 'Archived').length
+    active: assets.filter(a => a.status === 'active').length,
+    archived: assets.filter(a => a.status === 'archived').length
   };
 
   return (
@@ -359,14 +393,14 @@ export default function Assets() {
                           )}
                           <div>
                             <div className="text-sm font-semibold text-gray-900">{asset.name}</div>
-                            <div className="text-sm text-gray-500">{asset.assetId}</div>
+                            <div className="text-sm text-gray-500">#{asset.id}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">{asset.category}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{asset.location || '-'}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 text-xs rounded-full font-semibold ${asset.status === 'Active' ? 'bg-green-100 text-green-800' : asset.status === 'Archived' ? 'bg-gray-100 text-gray-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        <span className={`px-3 py-1 text-xs rounded-full font-semibold ${asset.status === 'active' ? 'bg-green-100 text-green-800' : asset.status === 'archived' ? 'bg-gray-100 text-gray-800' : 'bg-yellow-100 text-yellow-800'}`}>
                           {asset.status}
                         </span>
                       </td>
@@ -378,7 +412,7 @@ export default function Assets() {
                           <button onClick={() => { setSelectedAsset(asset); setShowViewModal(true); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="View">
                             <Eye className="w-4 h-4" />
                           </button>
-                          {asset.status === 'Archived' ? (
+                          {asset.status === 'archived' ? (
                             <button onClick={() => handleUnarchive(asset.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg" title="Unarchive">
                               <ArchiveRestore className="w-4 h-4" />
                             </button>
@@ -404,7 +438,7 @@ export default function Assets() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">{editMode ? "Edit Asset" : "Add Asset"}</h2>
-                    <p className="text-gray-600 mt-1">{editMode ? editingAsset?.assetId : "ID auto-generated"}</p>
+                    <p className="text-gray-600 mt-1">{editMode ? `#${editingAsset?.id}` : "ID auto-generated"}</p>
                   </div>
                   <button onClick={() => { setShowModal(false); setEditMode(false); setEditingAsset(null); resetForm(); }} className="p-2 hover:bg-gray-100 rounded-lg">
                     <X className="w-6 h-6" />
@@ -414,11 +448,12 @@ export default function Assets() {
               <form onSubmit={editMode ? handleUpdate : handleSubmit} className="p-8">
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Image</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Image (Optional - max 400px, compressed)</label>
                     <div className="flex items-center gap-4">
                       {formData.image ? <img src={formData.image} className="w-32 h-32 object-cover rounded-lg border" /> : <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed"><Package className="w-12 h-12 text-gray-400" /></div>}
                       <input type="file" accept="image/*" onChange={handleImageChange} className="flex-1 px-4 py-2 border rounded-lg" />
                     </div>
+                    <p className="text-xs text-gray-500 mt-1">Images are compressed to 400px max and 50% quality</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div><label className="block text-sm font-medium mb-2">Name *</label><input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full px-4 py-2.5 border rounded-lg" required /></div>
@@ -449,7 +484,7 @@ export default function Assets() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold">{selectedAsset.name}</h2>
-                    <p className="text-gray-600">{selectedAsset.assetId}</p>
+                    <p className="text-gray-600">#{selectedAsset.id}</p>
                   </div>
                   <button onClick={() => setShowViewModal(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X className="w-6 h-6" /></button>
                 </div>
@@ -458,11 +493,11 @@ export default function Assets() {
                 {selectedAsset.image && <img src={selectedAsset.image} className="w-full h-64 object-cover rounded-lg mb-6 border" />}
                 <div className="grid grid-cols-2 gap-6">
                   <div><p className="text-sm text-gray-500">Category</p><p className="text-lg font-medium">{selectedAsset.category}</p></div>
-                  <div><p className="text-sm text-gray-500">Status</p><span className={`inline-flex px-3 py-1 rounded-full text-sm font-semibold ${selectedAsset.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{selectedAsset.status}</span></div>
-                  <div><p className="text-sm text-gray-500">Model</p><p className="text-lg font-medium">{selectedAsset.modelNumber || '-'}</p></div>
-                  <div><p className="text-sm text-gray-500">Serial</p><p className="text-lg font-medium">{selectedAsset.serialNumber || '-'}</p></div>
+                  <div><p className="text-sm text-gray-500">Status</p><span className={`inline-flex px-3 py-1 rounded-full text-sm font-semibold ${selectedAsset.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{selectedAsset.status}</span></div>
+                  <div><p className="text-sm text-gray-500">Model</p><p className="text-lg font-medium">{selectedAsset.model_number || '-'}</p></div>
+                  <div><p className="text-sm text-gray-500">Serial</p><p className="text-lg font-medium">{selectedAsset.serial_number || '-'}</p></div>
                   <div><p className="text-sm text-gray-500">Location</p><p className="text-lg font-medium">{selectedAsset.location || '-'}</p></div>
-                  <div><p className="text-sm text-gray-500">Assigned</p><p className="text-lg font-medium">{selectedAsset.assignedTo || '-'}</p></div>
+                  <div><p className="text-sm text-gray-500">Assigned</p><p className="text-lg font-medium">{selectedAsset.assigned_to || '-'}</p></div>
                 </div>
               </div>
             </div>
