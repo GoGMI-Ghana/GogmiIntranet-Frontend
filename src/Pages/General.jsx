@@ -29,16 +29,16 @@ export default function General() {
     },
     {
       id: 'imswg',
-      name: 'IMSWG',
+      name: 'IMSWG Stakeholder Database',
       icon: Database,
       description: 'IMSWG data management and reporting',
       path: '/general/imswg'
     },
     {
       id: 'imswg-forum',
-      name: 'IMSWG Forum 2026',
+      name: 'IMSWG Forum ',
       icon: Users,
-      description: 'View IMSWG Forum 2026 registrations',
+      description: 'View IMSWG Forum registrations',
       path: '/general/imswg-forum'
     },
     {
