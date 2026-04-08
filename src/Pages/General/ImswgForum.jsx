@@ -5,8 +5,6 @@ import { Users, Download, Search, Calendar, Globe, Filter, Clock } from 'lucide-
 const quarters = [
   { id: 'Q1', label: 'Q1', months: 'Jan – Mar' },
   { id: 'Q2', label: 'Q2', months: 'Apr – Jun' },
-  { id: 'Q3', label: 'Q3', months: 'Jul – Sep' },
-  { id: 'Q4', label: 'Q4', months: 'Oct – Dec' },
 ];
 
 const years = [2026];
