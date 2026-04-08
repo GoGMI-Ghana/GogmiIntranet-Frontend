@@ -33,13 +33,7 @@ export default function Corporate() {
       description: 'Register new employees to the intranet system',
       path: '/corporate-affairs/register-employee'
     },
-    {
-      id: 'stakeholders',
-      name: 'Stakeholders',
-      icon: Users,
-      description: 'Stakeholder management and relations',
-      path: '/corporate-affairs/stakeholders'
-    },
+  
     {
       id: 'it',
       name: 'IT',
