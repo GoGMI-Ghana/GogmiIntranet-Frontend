@@ -116,7 +116,7 @@ const Imswg = () => {
               <span className="mx-2">/</span>
               <span className="text-gray-900 font-medium">IMSWG</span>
             </nav>
-            <h1 className="text-3xl font-bold text-gray-900">IMSWG Member Applications</h1>
+            <h1 className="text-3xl font-bold text-gray-900">IMSWG Stakeholder Database</h1>
             <p className="text-gray-600 mt-1">Review and manage membership applications</p>
           </div>
           
