@@ -147,13 +147,11 @@ function App() {
           </ProtectedRoute>
         } />
         
-        <Route path="/general/stakeholders" element={
-          <ProtectedRoute>
-            <Layout>
-              <Stakeholders />
-            </Layout>
-          </ProtectedRoute>
-        } />
+      <Route path="/general/stakeholders" element={
+        <ProtectedRoute>
+          <Stakeholders />
+        </ProtectedRoute>
+      } />
         
         <Route path="/corporate-affairs/assets" element={
           <ProtectedRoute department="corporate-affairs">
