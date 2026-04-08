@@ -49,7 +49,7 @@ import ImswgForum from './Pages/General/ImswgForum';
 import MaritimeGovernanceCourse from './Pages/General/MaritimeGovernanceCourse';
 import MarineCasualtyCourse from './Pages/General/MarineCasualtyCourse';
 import Memberships from './Pages/General/Memberships';
-import Memberships from './Pages/General/TrainingPrograms';
+import TrainingPrograms from './Pages/General/TrainingPrograms';
 
 
 import DepartmentProtectedRoute from './Components/DepartmentProtectedRoute';
