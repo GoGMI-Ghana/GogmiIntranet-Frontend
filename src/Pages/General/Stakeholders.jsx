@@ -1,17 +1,11 @@
 import { useState } from 'react';
-import { UserPlus, Eye, Trash2, Archive, Search, X, Building2, Users, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { UserPlus, Eye, Trash2, Archive, Search, X, Building2, Users, ChevronDown, MoreHorizontal, Download, RotateCcw } from 'lucide-react';
 
 const STAGE_STYLES = {
   'Active Partner': 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
   'Engaged': 'bg-blue-50 text-blue-700 ring-1 ring-blue-200',
   'Prospective': 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
   'Inactive': 'bg-gray-100 text-gray-500 ring-1 ring-gray-200',
-};
-
-const LEVEL_STYLES = {
-  'High': 'bg-red-50 text-red-700 ring-1 ring-red-200',
-  'Medium': 'bg-orange-50 text-orange-700 ring-1 ring-orange-200',
-  'Low': 'bg-green-50 text-green-700 ring-1 ring-green-200',
 };
 
 const Badge = ({ label, styles }) => (
@@ -30,42 +24,41 @@ export default function Stakeholders() {
 
   const [stakeholders, setStakeholders] = useState([
     {
-      id: 1, stakeholderId: 'SH-001', logo: null,
-      organization: 'Ministry of Transport', type: 'Government',
-      stage: 'Engaged', importance: 'High', influence: 'High', interest: 'High',
-      owner: 'Corporate Affairs', nextAction: 'Quarterly review meeting',
-      contactPerson: 'Dr. Sarah Johnson', email: 'sarah.johnson@mot.gov.gh',
-      phone: '+233 24 123 4567', archived: false
+      id: 1, stakeholderId: 'SH-001',
+      organization: 'Ministry of Transport', type: 'Government', country: 'Ghana',
+      stage: 'Engaged', interest: 'High', owner: 'Corporate Affairs',
+      nextAction: 'Quarterly review meeting', contactPerson: 'Dr. Sarah Johnson',
+      email: 'sarah.johnson@mot.gov.gh', phone: '+233 24 123 4567', archived: false
     },
     {
-      id: 2, stakeholderId: 'SH-002', logo: null,
-      organization: 'Ghana Shippers Authority', type: 'Regulatory Body',
-      stage: 'Active Partner', importance: 'High', influence: 'Medium', interest: 'High',
-      owner: 'General', nextAction: 'Annual conference collaboration',
-      contactPerson: 'Prof. Michael Asante', email: 'masante@gsa.gov.gh',
-      phone: '+233 26 987 6543', archived: false
+      id: 2, stakeholderId: 'SH-002',
+      organization: 'Ghana Shippers Authority', type: 'Regulatory Body', country: 'Ghana',
+      stage: 'Active Partner', interest: 'High', owner: 'General',
+      nextAction: 'Annual conference collaboration', contactPerson: 'Prof. Michael Asante',
+      email: 'masante@gsa.gov.gh', phone: '+233 26 987 6543', archived: false
     },
     {
-      id: 3, stakeholderId: 'SH-003', logo: null,
-      organization: 'IMARF', type: 'International Body',
-      stage: 'Prospective', importance: 'Medium', influence: 'Medium', interest: 'Medium',
-      owner: 'Technical', nextAction: 'Initial consultation meeting',
-      contactPerson: 'Dr. Kwame Mensah', email: 'kmensah@imarf.org',
-      phone: '+233 30 222 3456', archived: false
+      id: 3, stakeholderId: 'SH-003',
+      organization: 'IMARF', type: 'International Body', country: 'United Kingdom',
+      stage: 'Prospective', interest: 'Medium', owner: 'Technical',
+      nextAction: 'Initial consultation meeting', contactPerson: 'Dr. Kwame Mensah',
+      email: 'kmensah@imarf.org', phone: '+233 30 222 3456', archived: false
     }
   ]);
 
-  const [formData, setFormData] = useState({
-    organization: '', type: '', stage: '', importance: '', influence: '',
-    interest: '', owner: '', nextAction: '', contactPerson: '', email: '', phone: '', logo: null,
-  });
+  const emptyForm = {
+    organization: '', type: '', stage: '', interest: '',
+    owner: '', nextAction: '', contactPerson: '', email: '', phone: '', country: ''
+  };
+  const [formData, setFormData] = useState(emptyForm);
 
   const filteredStakeholders = stakeholders.filter(s => {
     const matchesTab = activeTab === 'current' ? !s.archived : s.archived;
     const matchesSearch =
       s.organization.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.stakeholderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.contactPerson.toLowerCase().includes(searchQuery.toLowerCase());
+      s.contactPerson.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.country?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
@@ -77,7 +70,7 @@ export default function Stakeholders() {
     };
     setStakeholders([newS, ...stakeholders]);
     setShowAddModal(false);
-    setFormData({ organization: '', type: '', stage: '', importance: '', influence: '', interest: '', owner: '', nextAction: '', contactPerson: '', email: '', phone: '', logo: null });
+    setFormData(emptyForm);
   };
 
   const handleArchive = (id) => {
@@ -86,10 +79,52 @@ export default function Stakeholders() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Delete this stakeholder? This action cannot be undone.')) {
+    if (window.confirm('Delete this stakeholder? This cannot be undone.')) {
       setStakeholders(stakeholders.filter(s => s.id !== id));
     }
     setOpenMenuId(null);
+  };
+
+  // CSV Export
+  const handleExportCSV = () => {
+    const data = stakeholders.filter(s => !s.archived);
+    const headers = ['ID', 'Organization', 'Type', 'Country', 'Stage', 'Interest', 'Owner', 'Contact Person', 'Email', 'Phone', 'Next Action'];
+    const rows = data.map(s => [
+      s.stakeholderId, s.organization, s.type, s.country, s.stage,
+      s.interest, s.owner, s.contactPerson, s.email, s.phone,
+      `"${s.nextAction}"`
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'stakeholders.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Excel Export (using HTML table trick — opens in Excel)
+  const handleExportExcel = () => {
+    const data = stakeholders.filter(s => !s.archived);
+    const headers = ['ID', 'Organization', 'Type', 'Country', 'Stage', 'Interest', 'Owner', 'Contact Person', 'Email', 'Phone', 'Next Action'];
+    let table = `<table><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+    data.forEach(s => {
+      table += `<tr>
+        <td>${s.stakeholderId}</td><td>${s.organization}</td><td>${s.type}</td>
+        <td>${s.country}</td><td>${s.stage}</td><td>${s.interest}</td>
+        <td>${s.owner}</td><td>${s.contactPerson}</td><td>${s.email}</td>
+        <td>${s.phone}</td><td>${s.nextAction}</td>
+      </tr>`;
+    });
+    table += '</table>';
+    const blob = new Blob([`<html><body>${table}</body></html>`], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'stakeholders.xls';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const InputField = ({ label, name, type = 'text', placeholder }) => (
@@ -98,7 +133,7 @@ export default function Stakeholders() {
       <input
         type={type} name={name} value={formData[name]} placeholder={placeholder}
         onChange={e => setFormData({ ...formData, [name]: e.target.value })}
-        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
       />
     </div>
   );
@@ -121,22 +156,35 @@ export default function Stakeholders() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-screen-xl mx-auto px-8 py-8">
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-screen-xl mx-auto">
 
-        {/* Page Header */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-1">General · Stakeholders</p>
             <h1 className="text-2xl font-semibold text-gray-900">Stakeholder Register</h1>
           </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
-          >
-            <UserPlus className="w-4 h-4" />
-            Add Stakeholder
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+            >
+              <Download className="w-4 h-4" /> Export CSV
+            </button>
+            <button
+              onClick={handleExportExcel}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+            >
+              <Download className="w-4 h-4" /> Export Excel
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+            >
+              <UserPlus className="w-4 h-4" /> Add Stakeholder
+            </button>
+          </div>
         </div>
 
         {/* Summary Cards */}
@@ -169,6 +217,13 @@ export default function Stakeholders() {
                   }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
+                    activeTab === tab ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
+                  }`}>
+                    {tab === 'current'
+                      ? stakeholders.filter(s => !s.archived).length
+                      : stakeholders.filter(s => s.archived).length}
+                  </span>
                 </button>
               ))}
             </div>
@@ -187,7 +242,7 @@ export default function Stakeholders() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
-                  {['Organization', 'Type', 'Stage', 'Importance', 'Influence', 'Interest', 'Owner', 'Next Action', ''].map(h => (
+                  {['Organization', 'Type', 'Country', 'Stage', 'Interest', 'Owner', 'Next Action', ''].map(h => (
                     <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
                       {h}
                     </th>
@@ -197,11 +252,13 @@ export default function Stakeholders() {
               <tbody className="divide-y divide-gray-50">
                 {filteredStakeholders.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="px-6 py-16 text-center">
+                    <td colSpan="8" className="px-6 py-16 text-center">
                       <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                         <Users className="w-5 h-5 text-gray-400" />
                       </div>
-                      <p className="text-sm text-gray-500">No stakeholders found</p>
+                      <p className="text-sm text-gray-500">
+                        {activeTab === 'archived' ? 'No archived stakeholders' : 'No stakeholders found'}
+                      </p>
                     </td>
                   </tr>
                 ) : (
@@ -219,10 +276,15 @@ export default function Stakeholders() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-gray-600 whitespace-nowrap">{s.type}</td>
+                      <td className="px-6 py-4 text-gray-600 whitespace-nowrap">{s.country}</td>
                       <td className="px-6 py-4 whitespace-nowrap"><Badge label={s.stage} styles={STAGE_STYLES[s.stage]} /></td>
-                      <td className="px-6 py-4 whitespace-nowrap"><Badge label={s.importance} styles={LEVEL_STYLES[s.importance]} /></td>
-                      <td className="px-6 py-4 whitespace-nowrap"><Badge label={s.influence} styles={LEVEL_STYLES[s.influence]} /></td>
-                      <td className="px-6 py-4 whitespace-nowrap"><Badge label={s.interest} styles={LEVEL_STYLES[s.interest]} /></td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${
+                          s.interest === 'High' ? 'bg-red-50 text-red-700 ring-1 ring-red-200' :
+                          s.interest === 'Medium' ? 'bg-orange-50 text-orange-700 ring-1 ring-orange-200' :
+                          'bg-green-50 text-green-700 ring-1 ring-green-200'
+                        }`}>{s.interest}</span>
+                      </td>
                       <td className="px-6 py-4 text-gray-600 whitespace-nowrap">{s.owner}</td>
                       <td className="px-6 py-4 text-gray-500 max-w-xs truncate">{s.nextAction}</td>
                       <td className="px-6 py-4">
@@ -234,7 +296,7 @@ export default function Stakeholders() {
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
                           {openMenuId === s.id && (
-                            <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
+                            <div className="absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-10 py-1">
                               <button
                                 onClick={() => { setSelectedStakeholder(s); setShowViewModal(true); setOpenMenuId(null); }}
                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
@@ -245,7 +307,10 @@ export default function Stakeholders() {
                                 onClick={() => handleArchive(s.id)}
                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                               >
-                                <Archive className="w-4 h-4" /> {s.archived ? 'Unarchive' : 'Archive'}
+                                {s.archived
+                                  ? <><RotateCcw className="w-4 h-4" /> Unarchive</>
+                                  : <><Archive className="w-4 h-4" /> Archive</>
+                                }
                               </button>
                               <div className="border-t border-gray-100 my-1" />
                               <button
@@ -265,7 +330,6 @@ export default function Stakeholders() {
             </table>
           </div>
 
-          {/* Footer */}
           <div className="px-6 py-3 border-t border-gray-100 bg-gray-50">
             <p className="text-xs text-gray-400">{filteredStakeholders.length} stakeholder{filteredStakeholders.length !== 1 ? 's' : ''}</p>
           </div>
@@ -278,21 +342,20 @@ export default function Stakeholders() {
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
               <h2 className="text-lg font-semibold text-gray-900">Add Stakeholder</h2>
-              <button onClick={() => setShowAddModal(false)} className="p-1.5 hover:bg-gray-100 rounded-md transition-colors">
+              <button onClick={() => setShowAddModal(false)} className="p-1.5 hover:bg-gray-100 rounded-md">
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
             <div className="p-6 grid grid-cols-2 gap-4">
               <div className="col-span-2"><InputField label="Organization Name" name="organization" placeholder="e.g. Ghana Ports Authority" /></div>
               <SelectField label="Type" name="type" options={['Government', 'Regulatory Body', 'International Body', 'Professional Body', 'NGO', 'Private Sector', 'Academic Institution']} />
+              <InputField label="Country" name="country" placeholder="e.g. Ghana" />
               <SelectField label="Stage" name="stage" options={['Active Partner', 'Engaged', 'Prospective', 'Inactive']} />
-              <SelectField label="Importance" name="importance" options={['High', 'Medium', 'Low']} />
-              <SelectField label="Influence" name="influence" options={['High', 'Medium', 'Low']} />
               <SelectField label="Interest" name="interest" options={['High', 'Medium', 'Low']} />
               <SelectField label="Owner / Department" name="owner" options={['General', 'Admin & Finance', 'Technical', 'Corporate Affairs', 'Directorate']} />
               <InputField label="Contact Person" name="contactPerson" placeholder="Full name" />
               <InputField label="Email" name="email" type="email" placeholder="email@example.com" />
-              <div className="col-span-2"><InputField label="Phone" name="phone" placeholder="+233 XX XXX XXXX" /></div>
+              <InputField label="Phone" name="phone" placeholder="+233 XX XXX XXXX" />
               <div className="col-span-2">
                 <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">Next Action</label>
                 <textarea
@@ -304,10 +367,10 @@ export default function Stakeholders() {
               </div>
             </div>
             <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
-              <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+              <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-md hover:bg-gray-50">
                 Cancel
               </button>
-              <button onClick={handleAdd} className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors">
+              <button onClick={handleAdd} className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800">
                 Add Stakeholder
               </button>
             </div>
@@ -335,14 +398,13 @@ export default function Stakeholders() {
                   <p className="text-sm text-gray-400">{selectedStakeholder.stakeholderId} · {selectedStakeholder.type}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+              <div className="grid grid-cols-2 gap-x-8 gap-y-5">
                 {[
+                  { label: 'Country', value: selectedStakeholder.country },
                   { label: 'Stage', value: <Badge label={selectedStakeholder.stage} styles={STAGE_STYLES[selectedStakeholder.stage]} /> },
+                  { label: 'Interest', value: selectedStakeholder.interest },
                   { label: 'Owner', value: selectedStakeholder.owner },
-                  { label: 'Importance', value: <Badge label={selectedStakeholder.importance} styles={LEVEL_STYLES[selectedStakeholder.importance]} /> },
-                  { label: 'Influence', value: <Badge label={selectedStakeholder.influence} styles={LEVEL_STYLES[selectedStakeholder.influence]} /> },
-                  { label: 'Interest', value: <Badge label={selectedStakeholder.interest} styles={LEVEL_STYLES[selectedStakeholder.interest]} /> },
-                  { label: 'Contact', value: selectedStakeholder.contactPerson },
+                  { label: 'Contact Person', value: selectedStakeholder.contactPerson },
                   { label: 'Email', value: selectedStakeholder.email },
                   { label: 'Phone', value: selectedStakeholder.phone },
                 ].map(({ label, value }) => (
@@ -358,7 +420,7 @@ export default function Stakeholders() {
               </div>
             </div>
             <div className="flex justify-end px-6 py-4 border-t border-gray-100">
-              <button onClick={() => setShowViewModal(false)} className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors">
+              <button onClick={() => setShowViewModal(false)} className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800">
                 Close
               </button>
             </div>
