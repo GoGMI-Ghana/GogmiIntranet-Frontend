@@ -5,7 +5,7 @@ const PAYMENT_LINKS = [
   {
     name: 'Paystack Dashboard',
     description: 'View transactions, payouts, customers and payment analytics',
-    url: 'https://dashboard.paystack.com',
+    url: 'https://dashboard.paystack.com/#/dashboard',
     icon: '🟢',
   },
 ];
