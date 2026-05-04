@@ -54,7 +54,15 @@ export default function Admin() {
       description: 'Approve and manage employee leave requests',
       path: '/admin-finance/leave-management',
       color: 'orange'
-    }
+    },
+    {
+  id: 'payments',
+  name: 'Payments',
+  icon: CreditCard,
+  description: 'Paystack dashboard and payment tools',
+  path: '/admin-finance/payments'
+},
+
 
   ];
 
