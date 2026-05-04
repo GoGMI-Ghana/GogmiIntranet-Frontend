@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ExternalLink, CreditCard, ArrowLeft } from 'lucide-react';
+import { ExternalLink, ArrowLeft } from 'lucide-react';
 
 const PAYMENT_LINKS = [
   {
@@ -17,7 +17,6 @@ export default function Payments() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-3xl mx-auto">
 
-        {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => navigate('/admin-finance')}
@@ -30,7 +29,6 @@ export default function Payments() {
           <p className="text-sm text-gray-500 mt-1">Access GoGMI payment platforms and tools</p>
         </div>
 
-        {/* Links */}
         <div className="space-y-4">
           {PAYMENT_LINKS.map((link) => (
             
