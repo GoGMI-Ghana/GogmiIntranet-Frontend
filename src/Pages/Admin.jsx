@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Wallet, Package, PieChart, ShoppingCart, Users, Settings,Calendar } from 'lucide-react';
+import { Wallet, Package, PieChart, ShoppingCart, Users, Settings,Calendar,CreditCard } from 'lucide-react';
 
 
 export default function Admin() {
