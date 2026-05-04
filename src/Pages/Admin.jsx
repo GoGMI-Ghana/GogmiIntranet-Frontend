@@ -59,7 +59,7 @@ export default function Admin() {
   id: 'payments',
   name: 'Payments',
   icon: CreditCard,
-  description: 'Paystack dashboard and payment tools',
+  description: 'Paystack dashboard and payment tools for membership and training payments',
   path: '/admin-finance/payments'
 },
 
