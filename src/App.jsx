@@ -50,6 +50,7 @@ import MaritimeGovernanceCourse from './Pages/General/MaritimeGovernanceCourse';
 import MarineCasualtyCourse from './Pages/General/MarineCasualtyCourse';
 import Memberships from './Pages/General/Memberships';
 import TrainingPrograms from './Pages/General/TrainingPrograms';
+import Payments from './Pages/Admin/Payments';
 
 
 import DepartmentProtectedRoute from './Components/DepartmentProtectedRoute';
@@ -347,6 +348,14 @@ function App() {
         <Route path="/general/memberships" element={
           <ProtectedRoute>
             <Memberships />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/admin-finance/payments" element={
+          <ProtectedRoute department="admin-finance">
+            <Layout>
+              <Payments />
+            </Layout>
           </ProtectedRoute>
         } />
 
