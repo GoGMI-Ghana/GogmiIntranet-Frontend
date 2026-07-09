@@ -4,6 +4,7 @@ import Login from './Pages/Login';
 import RequestAccess from './Pages/RequestAccess';
 import ForgotPassword from './Pages/ForgotPassword';
 import ResetPassword from './Pages/ResetPassword';
+import AdvisoryBoardForm from './Pages/AdvisoryBoardForm';
 import Dashboard from './Pages/Dashboard';
 import General from './Pages/General';
 import Admin from './Pages/Admin';
@@ -81,7 +82,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/request-access" element={<RequestAccess />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        
+        <Route path="/advisory-board/form/:token" element={<AdvisoryBoardForm />} />
+
 
         <Route path="/my-payslips" element={
           <ProtectedRoute>
