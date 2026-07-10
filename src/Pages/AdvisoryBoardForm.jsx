@@ -1,13 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { User, Phone, Calendar, Globe, Briefcase, Building2, MapPin, Linkedin, AlertCircle, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import { User, Mail, Phone, Calendar, Globe, Briefcase, Building2, MapPin, Linkedin, AlertCircle, CheckCircle } from 'lucide-react';
 import { API_URL } from '../config/api';
 
 export default function AdvisoryBoardForm() {
-  const { token } = useParams();
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [loadError, setLoadError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
@@ -25,25 +21,6 @@ export default function AdvisoryBoardForm() {
     linkedIn: '',
     photo: null
   });
-
-  useEffect(() => {
-    const loadForm = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/advisory-board/form/${token}`);
-        const data = await response.json();
-        if (data.success) {
-          setFormData((prev) => ({ ...prev, fullName: data.member.fullName, email: data.member.email }));
-        } else {
-          setLoadError(data.message || 'Invalid or expired invite link');
-        }
-      } catch {
-        setLoadError('Cannot connect to server. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadForm();
-  }, [token]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -78,14 +55,14 @@ export default function AdvisoryBoardForm() {
     e.preventDefault();
     setError('');
 
-    if (!formData.dateOfBirth || !formData.phoneNumber) {
-      setError('Date of birth and phone number are required');
+    if (!formData.fullName || !formData.email || !formData.dateOfBirth || !formData.phoneNumber) {
+      setError('Full name, email, date of birth and phone number are required');
       return;
     }
 
     setSubmitting(true);
     try {
-      const response = await fetch(`${API_URL}/api/advisory-board/form/${token}`, {
+      const response = await fetch(`${API_URL}/api/advisory-board/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -104,28 +81,6 @@ export default function AdvisoryBoardForm() {
   };
 
   const inputClass = "w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#8e3400] transition-all";
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading form...</p>
-      </div>
-    );
-  }
-
-  if (loadError) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-          <div className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center bg-red-100">
-            <AlertCircle className="w-8 h-8 text-red-500" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Link Unavailable</h2>
-          <p className="text-gray-600">{loadError}</p>
-        </div>
-      </div>
-    );
-  }
 
   if (submitted) {
     return (
@@ -168,8 +123,11 @@ export default function AdvisoryBoardForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-            <input type="email" value={formData.email} disabled className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-200 bg-gray-100 text-gray-500" />
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Email *</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} required className={inputClass} />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

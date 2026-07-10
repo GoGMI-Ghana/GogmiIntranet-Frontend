@@ -82,7 +82,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/request-access" element={<RequestAccess />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/advisory-board/form/:token" element={<AdvisoryBoardForm />} />
+        <Route path="/advisory-board/form" element={<AdvisoryBoardForm />} />
 
 
         <Route path="/my-payslips" element={
