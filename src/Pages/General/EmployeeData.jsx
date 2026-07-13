@@ -7,11 +7,13 @@ import {
   Users, FileSpreadsheet, Home
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { API_URL } from '../../config/api';
 
 export default function EmployeeData() {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterEmployeeType, setFilterEmployeeType] = useState('');
@@ -48,18 +50,22 @@ export default function EmployeeData() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/users');
+      const response = await fetch(`${API_URL}/api/users`);
       const data = await response.json();
       if (data.success) {
         // Filter out system/test accounts
-        const realEmployees = data.users.filter(user => 
-          user.employeeId !== 'ADMIN001' && 
+        const realEmployees = data.users.filter(user =>
+          user.employeeId !== 'ADMIN001' &&
           user.employeeId !== 'TEST999'
         );
         setEmployees(realEmployees);
+        setError('');
+      } else {
+        setError(data.message || 'Failed to load employees');
       }
     } catch (error) {
       console.error('Error fetching employees:', error);
+      setError('Cannot connect to server. Please make sure the backend is running!');
     } finally {
       setLoading(false);
     }
@@ -107,7 +113,7 @@ export default function EmployeeData() {
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/users/${selectedEmployee.id}`, {
+      const response = await fetch(`${API_URL}/api/users/${selectedEmployee.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -298,6 +304,10 @@ export default function EmployeeData() {
             </div>
           </div>
         </div>
+
+        {error && (
+          <div className="mb-6 border border-red-200 bg-red-50 rounded-lg p-3 text-sm text-red-700">{error}</div>
+        )}
 
         {/* Stats Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
