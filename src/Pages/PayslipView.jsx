@@ -307,7 +307,7 @@ export default function PayslipView() {
               </div>
 
               {/* NET PAY */}
-              <div className="rounded-xl p-6 flex items-center justify-between text-white" style={{ background: BRAND_GRADIENT }}>
+              <div className="rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-white" style={{ background: BRAND_GRADIENT }}>
                 <span className="font-semibold">Net Pay (Take Home)</span>
                 <span className="text-2xl font-bold tabular-nums">GH₵{formatMoney(payslip.netPay)}</span>
               </div>
