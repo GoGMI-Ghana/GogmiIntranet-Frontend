@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, MapPin, User, Calendar, Clock, Edit2, Search, Bell, Gift, Award, TrendingUp, Users, ChevronRight, Megaphone, Lock, X, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../config/api';
+import { API_URL, resolveFileUrl } from '../config/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -330,7 +330,7 @@ const fetchBirthdays = async () => {
               <div className="flex items-center space-x-4 pb-4 border-b">
                 <div className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl overflow-hidden"
                   style={{ background: 'linear-gradient(135deg, #132552 0%, #8e3400 100%)' }}>
-                  {userData.profilePicture ? (<img src={userData.profilePicture} alt={userData.name} className="w-16 h-16 rounded-full object-cover" />) : (userData.name?.split(' ').map(n => n[0]).join('') || 'EN')}
+                  {userData.profilePicture ? (<img src={resolveFileUrl(userData.profilePicture)} alt={userData.name} className="w-16 h-16 rounded-full object-cover" />) : (userData.name?.split(' ').map(n => n[0]).join('') || 'EN')}
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">

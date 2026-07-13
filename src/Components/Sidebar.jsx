@@ -1,6 +1,7 @@
 import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, X, Home, LogOut, Settings, User } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { resolveFileUrl } from '../config/api';
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
@@ -242,7 +243,7 @@ const quickActions = [
           <div className="flex items-center space-x-3">
            
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-md" style={{ background: 'linear-gradient(135deg, #132552 0%, #8e3400 100%)' }}>
-              {userData?.profilePicture ? (<img src={userData.profilePicture} alt={userData.name} className="w-10 h-10 rounded-full object-cover" />) : getInitials(userData?.name)}
+              {userData?.profilePicture ? (<img src={resolveFileUrl(userData.profilePicture)} alt={userData.name} className="w-10 h-10 rounded-full object-cover" />) : getInitials(userData?.name)}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">{userData?.name || 'User'}</p>
