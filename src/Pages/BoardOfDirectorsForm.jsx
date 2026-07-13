@@ -1,6 +1,12 @@
 import { useState } from 'react';
-import { User, Mail, Phone, Calendar, Globe, Briefcase, Building2, MapPin, Linkedin, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Globe, Briefcase, MapPin, Linkedin, AlertCircle, CheckCircle } from 'lucide-react';
 import { API_URL } from '../config/api';
+
+const POSITION_OPTIONS = [
+  'Executive Board Chairman',
+  'Director Technical',
+  'Director Finance and Administration'
+];
 
 export default function BoardOfDirectorsForm() {
   const [submitting, setSubmitting] = useState(false);
@@ -15,7 +21,6 @@ export default function BoardOfDirectorsForm() {
     gender: '',
     nationality: '',
     position: '',
-    organization: '',
     address: '',
     bio: '',
     linkedIn: '',
@@ -168,21 +173,21 @@ export default function BoardOfDirectorsForm() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Position / Title</label>
-              <div className="relative">
-                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="text" name="position" value={formData.position} onChange={handleChange} placeholder="e.g. Board Chairman" className={inputClass} />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Organization</label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="text" name="organization" value={formData.organization} onChange={handleChange} className={inputClass} />
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Position / Title</label>
+            <div className="relative">
+              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <select
+                name="position"
+                value={formData.position}
+                onChange={handleChange}
+                className={`${inputClass} appearance-none`}
+              >
+                <option value="">Select position</option>
+                {POSITION_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
             </div>
           </div>
 
