@@ -10,8 +10,10 @@ export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   
-  // Hide sidebar on Employee Data page for full-screen experience
-  const isEmployeeDataPage = location.pathname === '/admin-finance/employee-data' || location.pathname === '/admin-finance/payroll';
+  // Hide sidebar/breadcrumbs on pages that build their own full-screen layout and breadcrumb
+  const isEmployeeDataPage = location.pathname === '/admin-finance/employee-data'
+    || location.pathname === '/admin-finance/payroll'
+    || location.pathname.startsWith('/payslip/');
 
   return (
     <div className="min-h-screen bg-gray-50">
