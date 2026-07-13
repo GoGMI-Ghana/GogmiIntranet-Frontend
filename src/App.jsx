@@ -5,6 +5,7 @@ import RequestAccess from './Pages/RequestAccess';
 import ForgotPassword from './Pages/ForgotPassword';
 import ResetPassword from './Pages/ResetPassword';
 import AdvisoryBoardForm from './Pages/AdvisoryBoardForm';
+import BoardOfDirectorsForm from './Pages/BoardOfDirectorsForm';
 import Dashboard from './Pages/Dashboard';
 import General from './Pages/General';
 import Admin from './Pages/Admin';
@@ -44,6 +45,7 @@ import RegisterEmployee from './Pages/Corporate/RegisterEmployee';
 
 import CompanyStrategy from './Pages/Directorate/CompanyStrategy';
 import AdvisoryBoard from './Pages/Directorate/AdvisoryBoard';
+import BoardOfDirectors from './Pages/Directorate/BoardOfDirectors';
 import CompanyPerformance from './Pages/Directorate/CompanyPerformance';
 import MOU from './Pages/General/MOU';
 import ImswgForum from './Pages/General/ImswgForum';
@@ -83,6 +85,7 @@ function App() {
         <Route path="/request-access" element={<RequestAccess />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/advisory-board/form" element={<AdvisoryBoardForm />} />
+        <Route path="/board-of-directors/form" element={<BoardOfDirectorsForm />} />
 
 
         <Route path="/my-payslips" element={
@@ -295,6 +298,13 @@ function App() {
           <ProtectedRoute department="directorate">
             <Layout>
               <AdvisoryBoard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/directorate/board-of-directors" element={
+          <ProtectedRoute department="directorate">
+            <Layout>
+              <BoardOfDirectors />
             </Layout>
           </ProtectedRoute>
         } />
