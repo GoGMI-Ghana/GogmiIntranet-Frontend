@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Plus, Eye, Download, Calendar, DollarSign, Users, FileText } from 'lucide-react';
+import { API_URL } from '../../config/api';
 
 export default function Payroll() {
   const [activeTab, setActiveTab] = useState('all');
@@ -50,7 +51,7 @@ export default function Payroll() {
   const fetchPayslips = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/payslips');
+      const response = await fetch(`${API_URL}/api/payslips`);
       const data = await response.json();
       if (data.success) {
         setPayslips(data.payslips);
@@ -64,7 +65,7 @@ export default function Payroll() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users');
+      const response = await fetch(`${API_URL}/api/users`);
       const data = await response.json();
       if (data.success) {
         setEmployees(data.users);
@@ -127,7 +128,7 @@ export default function Payroll() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/payslips', {
+      const response = await fetch(`${API_URL}/api/payslips`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

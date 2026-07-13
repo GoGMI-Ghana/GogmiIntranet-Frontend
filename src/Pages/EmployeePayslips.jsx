@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Eye, Download, Calendar, FileText, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Components/Layout';
+import { API_URL } from '../config/api';
 
 export default function EmployeePayslips() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function EmployeePayslips() {
   const fetchMyPayslips = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/payslips/employee/${userData.employeeId}`);
+      const response = await fetch(`${API_URL}/api/payslips/employee/${userData.employeeId}`);
       const data = await response.json();
       
       if (data.success) {
