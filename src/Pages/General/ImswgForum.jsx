@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Users, Download, Search, Calendar, Globe, Filter, Clock } from 'lucide-react';
+import { API_URL } from '../../config/api';
 
 const quarters = [
   { id: 'Q1', label: 'Q1', months: 'Jan – Mar' },
@@ -37,7 +38,7 @@ const ImswgForum = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/imswg/registrations`, {
+      const response = await fetch(`${API_URL}/api/imswg/registrations`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -54,12 +55,12 @@ const ImswgForum = () => {
 
   const handleExportCSV = () => {
     const token = localStorage.getItem('token');
-    window.open(`${import.meta.env.VITE_API_URL}/api/imswg/export/csv?token=${token}`, '_blank');
+    window.open(`${API_URL}/api/imswg/export/csv?token=${token}`, '_blank');
   };
 
   const handleExportExcel = () => {
     const token = localStorage.getItem('token');
-    window.open(`${import.meta.env.VITE_API_URL}/api/imswg/export/excel?token=${token}`, '_blank');
+    window.open(`${API_URL}/api/imswg/export/excel?token=${token}`, '_blank');
   };
 
   const countries = ['all', ...new Set(registrations.map(r => r.country).filter(Boolean))];
