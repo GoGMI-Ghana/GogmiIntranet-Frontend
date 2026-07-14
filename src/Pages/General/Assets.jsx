@@ -42,7 +42,7 @@ export default function Assets() {
     try {
       const response = await fetch(`${API_URL}/api/assets`, { headers: getAuthHeaders() });
       const data = await response.json();
-      if (data.success) setAssets(data.data || []);
+      if (data.success) setAssets(data.assets || []);
     } catch (error) {
       console.error('Error fetching assets:', error);
     } finally {
@@ -130,9 +130,9 @@ export default function Assets() {
     setEditingAsset(asset);
     setFormData({
       name: asset.name, category: asset.category, description: asset.description || '',
-      modelNumber: asset.model_number || '', serialNumber: asset.serial_number || '',
-      purchaseDate: asset.purchase_date ? asset.purchase_date.split('T')[0] : '',
-      assignedTo: asset.assigned_to || '', location: asset.location || '',
+      modelNumber: asset.modelNumber || '', serialNumber: asset.serialNumber || '',
+      purchaseDate: asset.purchaseDate ? asset.purchaseDate.split('T')[0] : '',
+      assignedTo: asset.assignedTo || '', location: asset.location || '',
       condition: asset.condition, notes: asset.notes || '', image: asset.image || null
     });
     setEditMode(true); setShowModal(true);
@@ -140,9 +140,9 @@ export default function Assets() {
 
   const handleExportExcel = () => {
     const data = filteredAssets.map(a => ({
-      'Asset ID': a.asset_id || '', 'Name': a.name, 'Category': a.category,
-      'Location': a.location || '', 'Status': a.status, 'Assigned To': a.assigned_to || '',
-      'Condition': a.condition || '', 'Serial No': a.serial_number || '', 'Model No': a.model_number || ''
+      'Asset ID': a.assetId || '', 'Name': a.name, 'Category': a.category,
+      'Location': a.location || '', 'Status': a.status, 'Assigned To': a.assignedTo || '',
+      'Condition': a.condition || '', 'Serial No': a.serialNumber || '', 'Model No': a.modelNumber || ''
     }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -153,8 +153,8 @@ export default function Assets() {
   const handleExportCSV = () => {
     const headers = ['Asset ID', 'Name', 'Category', 'Location', 'Status', 'Assigned To', 'Condition', 'Serial No', 'Model No'];
     const rows = filteredAssets.map(a => [
-      a.asset_id || '', a.name, a.category, a.location || '', a.status,
-      a.assigned_to || '', a.condition || '', a.serial_number || '', a.model_number || ''
+      a.assetId || '', a.name, a.category, a.location || '', a.status,
+      a.assignedTo || '', a.condition || '', a.serialNumber || '', a.modelNumber || ''
     ]);
     const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -164,11 +164,11 @@ export default function Assets() {
   };
 
   // Stats
-  const activeAssets = assets.filter(a => a.status !== 'archived');
+  const activeAssets = assets.filter(a => a.status !== 'Archived');
   const stats = {
     total: assets.length,
     active: activeAssets.length,
-    archived: assets.filter(a => a.status === 'archived').length,
+    archived: assets.filter(a => a.status === 'Archived').length,
   };
 
   // Category breakdown (active only)
@@ -180,8 +180,8 @@ export default function Assets() {
 
   const filteredAssets = assets.filter(a => {
     const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (a.asset_id && a.asset_id.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesTab = activeTab === 'current' ? a.status !== 'archived' : a.status === 'archived';
+      (a.assetId && a.assetId.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesTab = activeTab === 'current' ? a.status !== 'Archived' : a.status === 'Archived';
     const matchesCategory = categoryFilter === 'all' || a.category === categoryFilter;
     return matchesSearch && matchesTab && matchesCategory;
   });
@@ -347,15 +347,15 @@ export default function Assets() {
                       </td>
                       <td className="px-6 py-4">
                         <span className="font-mono text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
-                          {asset.asset_id || '—'}
+                          {asset.assetId || '—'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-gray-600">{asset.category}</td>
                       <td className="px-6 py-4 text-gray-600">{asset.location || '—'}</td>
-                      <td className="px-6 py-4 text-gray-600">{asset.assigned_to || '—'}</td>
+                      <td className="px-6 py-4 text-gray-600">{asset.assignedTo || '—'}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${
-                          asset.status === 'active' ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' :
+                          asset.status === 'Active' ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' :
                           'bg-gray-100 text-gray-500 ring-1 ring-gray-200'
                         }`}>
                           {asset.status}
@@ -369,7 +369,7 @@ export default function Assets() {
                           <button onClick={() => { setSelectedAsset(asset); setShowViewModal(true); }} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="View">
                             <Eye className="w-4 h-4" />
                           </button>
-                          {asset.status === 'archived' ? (
+                          {asset.status === 'Archived' ? (
                             <button onClick={() => handleUnarchive(asset.id)} className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors" title="Unarchive">
                               <ArchiveRestore className="w-4 h-4" />
                             </button>
@@ -400,7 +400,7 @@ export default function Assets() {
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">{editMode ? 'Edit Asset' : 'Add New Asset'}</h2>
-                {editMode && <p className="text-xs text-gray-400 mt-0.5">{editingAsset?.asset_id}</p>}
+                {editMode && <p className="text-xs text-gray-400 mt-0.5">{editingAsset?.assetId}</p>}
               </div>
               <button onClick={() => { setShowModal(false); setEditMode(false); setEditingAsset(null); resetForm(); }} className="p-1.5 hover:bg-gray-100 rounded-md">
                 <X className="w-5 h-5 text-gray-500" />
@@ -500,7 +500,7 @@ export default function Assets() {
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">{selectedAsset.name}</h2>
-                <p className="text-xs font-mono text-gray-400 mt-0.5">{selectedAsset.asset_id}</p>
+                <p className="text-xs font-mono text-gray-400 mt-0.5">{selectedAsset.assetId}</p>
               </div>
               <button onClick={() => setShowViewModal(false)} className="p-1.5 hover:bg-gray-100 rounded-md">
                 <X className="w-5 h-5 text-gray-500" />
@@ -516,10 +516,10 @@ export default function Assets() {
                   { label: 'Condition', value: selectedAsset.condition },
                   { label: 'Status', value: selectedAsset.status },
                   { label: 'Location', value: selectedAsset.location || '—' },
-                  { label: 'Assigned To', value: selectedAsset.assigned_to || '—' },
-                  { label: 'Model No', value: selectedAsset.model_number || '—' },
-                  { label: 'Serial No', value: selectedAsset.serial_number || '—' },
-                  { label: 'Purchase Date', value: selectedAsset.purchase_date ? new Date(selectedAsset.purchase_date).toLocaleDateString() : '—' },
+                  { label: 'Assigned To', value: selectedAsset.assignedTo || '—' },
+                  { label: 'Model No', value: selectedAsset.modelNumber || '—' },
+                  { label: 'Serial No', value: selectedAsset.serialNumber || '—' },
+                  { label: 'Purchase Date', value: selectedAsset.purchaseDate ? new Date(selectedAsset.purchaseDate).toLocaleDateString() : '—' },
                 ].map(({ label, value }) => (
                   <div key={label}>
                     <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">{label}</p>
