@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Download, ArrowLeft, Printer, Home, ChevronRight } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import Layout from '../Components/Layout';
-import { API_URL } from '../config/api';
+import { API_URL, resolveFileUrl } from '../config/api';
 
 const NAVY = '#132552';
 const RUST = '#8e3400';
@@ -190,7 +190,7 @@ export default function PayslipView() {
                 <div className="flex items-center gap-4">
                   {companySettings.logoPath ? (
                     <img
-                      src={companySettings.logoPath}
+                      src={resolveFileUrl(companySettings.logoPath)}
                       alt="Company Logo"
                       className="w-16 h-16 object-contain rounded bg-white/10 p-1"
                     />

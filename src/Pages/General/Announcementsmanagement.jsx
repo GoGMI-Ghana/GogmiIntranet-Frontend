@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Eye, EyeOff, Megaphone, Calendar, User } from 'lucide-react';
+import { API_URL } from '../../config/api';
 
 export default function AnnouncementsManagement() {
   const [announcements, setAnnouncements] = useState([]);
@@ -23,7 +24,7 @@ export default function AnnouncementsManagement() {
   const fetchAnnouncements = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/announcements/all');
+      const response = await fetch(`${API_URL}/api/announcements/all`);
       const data = await response.json();
       
       if (data.success) {
@@ -48,9 +49,9 @@ export default function AnnouncementsManagement() {
     setLoading(true);
 
     try {
-      const url = editingAnnouncement 
-        ? `http://localhost:5000/api/announcements/${editingAnnouncement.id}`
-        : 'http://localhost:5000/api/announcements';
+      const url = editingAnnouncement
+        ? `${API_URL}/api/announcements/${editingAnnouncement.id}`
+        : `${API_URL}/api/announcements`;
       
       const method = editingAnnouncement ? 'PUT' : 'POST';
 
@@ -107,7 +108,7 @@ export default function AnnouncementsManagement() {
 
   const handleToggleActive = async (announcement) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/announcements/${announcement.id}`, {
+      const response = await fetch(`${API_URL}/api/announcements/${announcement.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -131,7 +132,7 @@ export default function AnnouncementsManagement() {
     if (!window.confirm('Are you sure you want to delete this announcement?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/announcements/${id}`, {
+      const response = await fetch(`${API_URL}/api/announcements/${id}`, {
         method: 'DELETE'
       });
 

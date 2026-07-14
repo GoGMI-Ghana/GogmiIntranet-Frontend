@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, FileText, CheckCircle, XCircle, AlertCircle, Loader } from 'lucide-react';
 import Layout from '../../Components/Layout';
+import { API_URL } from '../../config/api';
 
 export default function MyLeave() {
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -23,7 +24,7 @@ export default function MyLeave() {
 
   const fetchLeaveRequests = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/leaves/employee/${userData.employeeId}`);
+      const response = await fetch(`${API_URL}/api/leaves/employee/${userData.employeeId}`);
       const data = await response.json();
       
       if (data.success) {
@@ -36,7 +37,7 @@ export default function MyLeave() {
 
   const fetchLeaveBalance = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/leaves/balance/${userData.employeeId}`);
+      const response = await fetch(`${API_URL}/api/leaves/balance/${userData.employeeId}`);
       const data = await response.json();
       
       if (data.success) {
@@ -71,7 +72,7 @@ export default function MyLeave() {
     const numberOfDays = calculateDays(formData.startDate, formData.endDate);
 
     try {
-      const response = await fetch('http://localhost:5000/api/leaves', {
+      const response = await fetch(`${API_URL}/api/leaves`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -115,7 +116,7 @@ export default function MyLeave() {
     if (!window.confirm('Are you sure you want to cancel this leave request?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/leaves/${leaveId}/cancel`, {
+      const response = await fetch(`${API_URL}/api/leaves/${leaveId}/cancel`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
