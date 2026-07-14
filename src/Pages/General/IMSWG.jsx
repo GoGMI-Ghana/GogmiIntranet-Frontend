@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, UserCheck, UserX, Clock, Globe, Briefcase, Mail, Phone, Download, Search, Filter, Grid, List, Eye } from 'lucide-react';
+import { API_URL } from '../../config/api';
 
 const Imswg = () => {
   const [applications, setApplications] = useState([]);
@@ -17,7 +18,7 @@ const Imswg = () => {
  const fetchApplications = async () => {
    try {
      const token = localStorage.getItem('token');
-     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/imswg-apps/applications`, {  // ← CORRECT
+     const response = await fetch(`${API_URL}/api/imswg-apps/applications`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -37,7 +38,7 @@ const Imswg = () => {
   const handleStatusUpdate = async (id, status) => {
     try {
       const token = localStorage.getItem('token');
-   const response = await fetch(`${import.meta.env.VITE_API_URL}/api/imswg-apps/applications/${id}/status`, {  // ← CORRECT
+   const response = await fetch(`${API_URL}/api/imswg-apps/applications/${id}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Building2, Upload, Save, Eye, Image, Loader } from 'lucide-react';
+import { API_URL, resolveFileUrl } from '../config/api';
 
 export default function CompanySettings() {
   const [settings, setSettings] = useState({
@@ -19,7 +20,7 @@ export default function CompanySettings() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('/api/company-settings');
+      const response = await fetch(`${API_URL}/api/company-settings`);
       const data = await response.json();
       
       if (data.success) {
@@ -53,7 +54,7 @@ export default function CompanySettings() {
     formData.append('logo', file);
 
     try {
-      const response = await fetch('/api/company-settings/upload-logo', {
+      const response = await fetch(`${API_URL}/api/company-settings/upload-logo`, {
         method: 'POST',
         body: formData
       });
@@ -83,7 +84,7 @@ export default function CompanySettings() {
     setError('');
 
     try {
-      const response = await fetch('/api/company-settings', {
+      const response = await fetch(`${API_URL}/api/company-settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -197,7 +198,7 @@ export default function CompanySettings() {
                 <div className="border border-gray-300 rounded-lg p-6 bg-gray-50">
                   {settings.logoPath ? (
                     <img
-                      src={settings.logoPath}
+                      src={resolveFileUrl(settings.logoPath)}
                       alt="Company Logo"
                       className="max-w-full h-32 object-contain mx-auto"
                     />
@@ -274,7 +275,7 @@ export default function CompanySettings() {
               <div className="flex items-center gap-4">
                 {settings.logoPath ? (
                   <img
-                    src={settings.logoPath}
+                    src={resolveFileUrl(settings.logoPath)}
                     alt="Company Logo"
                     className="w-20 h-20 object-contain"
                   />

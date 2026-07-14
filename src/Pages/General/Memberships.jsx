@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Download, Search, DollarSign, UserCheck, Building2, GraduationCap, Briefcase, Award, Crown, Globe, Mail, Phone, Calendar, Eye } from 'lucide-react';
+import { API_URL } from '../../config/api';
 
 const Memberships = () => {
   const [applications, setApplications] = useState([]);
@@ -18,7 +19,7 @@ const Memberships = () => {
   const fetchApplications = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/memberships/applications`, {
+      const response = await fetch(`${API_URL}/api/memberships/applications`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -37,12 +38,12 @@ const Memberships = () => {
 
   const handleExportCSV = () => {
     const token = localStorage.getItem('token');
-    window.open(`${import.meta.env.VITE_API_URL}/api/memberships/export/csv?token=${token}`, '_blank');
+    window.open(`${API_URL}/api/memberships/export/csv?token=${token}`, '_blank');
   };
 
   const handleExportExcel = () => {
     const token = localStorage.getItem('token');
-    window.open(`${import.meta.env.VITE_API_URL}/api/memberships/export/excel?token=${token}`, '_blank');
+    window.open(`${API_URL}/api/memberships/export/excel?token=${token}`, '_blank');
   };
 
   // Membership type config

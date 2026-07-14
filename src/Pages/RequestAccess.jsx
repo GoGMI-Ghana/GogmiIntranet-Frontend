@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, User, IdCard, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import { API_URL } from '../config/api';
 
 export default function RequestAccess() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ export default function RequestAccess() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/request-access', {
+      const response = await fetch(`${API_URL}/api/request-access`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

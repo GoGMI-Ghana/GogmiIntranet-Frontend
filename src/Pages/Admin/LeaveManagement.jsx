@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, CheckCircle, XCircle, Clock, Filter, Users, FileText, AlertCircle } from 'lucide-react';
+import { API_URL } from '../../config/api';
 
 export default function LeaveManagement() {
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -18,9 +19,9 @@ export default function LeaveManagement() {
   const fetchLeaveRequests = async () => {
     setLoading(true);
     try {
-      const url = filterStatus === 'all' 
-        ? 'http://localhost:5000/api/leaves'
-        : `http://localhost:5000/api/leaves?status=${filterStatus}`;
+      const url = filterStatus === 'all'
+        ? `${API_URL}/api/leaves`
+        : `${API_URL}/api/leaves?status=${filterStatus}`;
       
       const response = await fetch(url);
       const data = await response.json();
@@ -49,7 +50,7 @@ export default function LeaveManagement() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/leaves/${selectedLeave.id}/status`, {
+      const response = await fetch(`${API_URL}/api/leaves/${selectedLeave.id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
