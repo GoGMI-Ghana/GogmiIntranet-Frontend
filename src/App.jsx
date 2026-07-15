@@ -191,9 +191,7 @@ function App() {
         
         <Route path="/admin-finance/assets" element={
           <ProtectedRoute department="admin-finance">
-            <Layout>
-              <AdminAssets />
-            </Layout>
+            <AdminAssets />
           </ProtectedRoute>
         } />
         
