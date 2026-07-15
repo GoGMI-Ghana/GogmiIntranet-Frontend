@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Wallet, Package, PieChart, ShoppingCart, Users, Settings,Calendar,CreditCard } from 'lucide-react';
+import { Wallet, Package, PieChart, ShoppingCart, Users, Settings, Calendar, CreditCard } from 'lucide-react';
 
 
 export default function Admin() {
@@ -22,6 +22,13 @@ export default function Admin() {
       icon: Users,
       description: 'Employee information and records',
       path: '/admin-finance/employee-data'
+    },
+    {
+      id: 'assets',
+      name: 'Assets',
+      icon: Package,
+      description: 'Track and manage GoGMI assets',
+      path: '/admin-finance/assets'
     },
     {
       id: 'budgets',
