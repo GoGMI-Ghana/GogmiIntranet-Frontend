@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Search, Edit2, Eye, UserPlus, X, Save, Download, Upload, 
+import {
+  Search, Edit2, Eye, UserPlus, X, Save, Download, Upload,
   Filter, RefreshCw, MoreVertical, Trash2, Mail, Phone,
   Calendar, MapPin, Briefcase, Building2, ChevronLeft, ChevronRight,
-  Users, FileSpreadsheet, Home
+  Users, FileSpreadsheet, Home, Archive, ArchiveRestore
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { API_URL } from '../../config/api';
@@ -24,6 +24,7 @@ export default function EmployeeData() {
   const [itemsPerPage] = useState(10);
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
+  const [activeTab, setActiveTab] = useState('current');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -138,6 +139,45 @@ export default function EmployeeData() {
     }
   };
 
+  const handleArchive = async (employee) => {
+    if (!window.confirm(`Mark ${employee.name} as a former employee? This keeps their record but removes them from the active workforce list - you can restore them anytime.`)) return;
+    try {
+      const response = await fetch(`${API_URL}/api/users/${employee.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employmentStatus: 'Former' })
+      });
+      const data = await response.json();
+      if (data.success) {
+        fetchEmployees();
+      } else {
+        alert(data.message || 'Failed to archive employee');
+      }
+    } catch (error) {
+      alert('Error archiving employee');
+      console.error('Error:', error);
+    }
+  };
+
+  const handleUnarchive = async (employee) => {
+    try {
+      const response = await fetch(`${API_URL}/api/users/${employee.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ employmentStatus: 'Active' })
+      });
+      const data = await response.json();
+      if (data.success) {
+        fetchEmployees();
+      } else {
+        alert(data.message || 'Failed to restore employee');
+      }
+    } catch (error) {
+      alert('Error restoring employee');
+      console.error('Error:', error);
+    }
+  };
+
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -216,7 +256,11 @@ export default function EmployeeData() {
     a.click();
   };
 
-  const filteredEmployees = employees
+  const activeEmployees = employees.filter(emp => (emp.employmentStatus || 'Active') !== 'Former');
+  const formerEmployees = employees.filter(emp => emp.employmentStatus === 'Former');
+  const visibleEmployees = activeTab === 'current' ? activeEmployees : formerEmployees;
+
+  const filteredEmployees = visibleEmployees
     .filter(emp => {
       const matchesSearch = 
         emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -305,6 +349,26 @@ export default function EmployeeData() {
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="flex gap-1 mb-6">
+          {['current', 'archived'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
+              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                activeTab === tab ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'
+              }`}
+            >
+              {tab === 'current' ? 'Current Employees' : 'Archived'}
+              <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
+                activeTab === tab ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+              }`}>
+                {tab === 'current' ? activeEmployees.length : formerEmployees.length}
+              </span>
+            </button>
+          ))}
+        </div>
+
         {error && (
           <div className="mb-6 border border-red-200 bg-red-50 rounded-lg p-3 text-sm text-red-700">{error}</div>
         )}
@@ -315,7 +379,7 @@ export default function EmployeeData() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Employees</p>
-                <p className="text-3xl font-bold text-gray-900">{employees.length}</p>
+                <p className="text-3xl font-bold text-gray-900">{activeEmployees.length}</p>
                 <p className="text-xs text-green-600 mt-2">● Active workforce</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -329,10 +393,10 @@ export default function EmployeeData() {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Full-time Staff</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {employees.filter(e => e.employeeType === 'Full-time').length}
+                  {activeEmployees.filter(e => e.employeeType === 'Full-time').length}
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
-                  {employees.length > 0 ? ((employees.filter(e => e.employeeType === 'Full-time').length / employees.length) * 100).toFixed(0) : 0}% of total
+                  {activeEmployees.length > 0 ? ((activeEmployees.filter(e => e.employeeType === 'Full-time').length / activeEmployees.length) * 100).toFixed(0) : 0}% of total
                 </p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -346,10 +410,10 @@ export default function EmployeeData() {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Contract Staff</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {employees.filter(e => e.employeeType === 'Contract').length}
+                  {activeEmployees.filter(e => e.employeeType === 'Contract').length}
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
-                  {employees.length > 0 ? ((employees.filter(e => e.employeeType === 'Contract').length / employees.length) * 100).toFixed(0) : 0}% of total
+                  {activeEmployees.length > 0 ? ((activeEmployees.filter(e => e.employeeType === 'Contract').length / activeEmployees.length) * 100).toFixed(0) : 0}% of total
                 </p>
               </div>
               <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -363,7 +427,7 @@ export default function EmployeeData() {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Departments</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {new Set(employees.map(e => e.department)).size}
+                  {new Set(activeEmployees.map(e => e.department)).size}
                 </p>
                 <p className="text-xs text-gray-500 mt-2">Active departments</p>
               </div>
@@ -447,8 +511,12 @@ export default function EmployeeData() {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="w-8 h-8 text-gray-400" />
                 </div>
-                <p className="text-gray-500 font-medium">No employees found</p>
-                <p className="text-gray-400 text-sm mt-2">Try adjusting your filters or search query</p>
+                <p className="text-gray-500 font-medium">
+                  {activeTab === 'current' ? 'No employees found' : 'No archived employees'}
+                </p>
+                <p className="text-gray-400 text-sm mt-2">
+                  {activeTab === 'current' ? 'Try adjusting your filters or search query' : 'Employees you archive will show up here'}
+                </p>
               </div>
             ) : (
               <>
@@ -565,6 +633,23 @@ export default function EmployeeData() {
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
+                            {employee.employmentStatus === 'Former' ? (
+                              <button
+                                onClick={() => handleUnarchive(employee)}
+                                className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                title="Restore to active workforce"
+                              >
+                                <ArchiveRestore className="w-4 h-4" />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleArchive(employee)}
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Archive (e.g. employee has left)"
+                              >
+                                <Archive className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -751,7 +836,24 @@ export default function EmployeeData() {
                   </div>
                 </div>
 
-                <div className="mt-8 flex justify-end">
+                <div className="mt-8 flex justify-end gap-3">
+                  {selectedEmployee.employmentStatus === 'Former' ? (
+                    <button
+                      onClick={() => { handleUnarchive(selectedEmployee); setShowViewModal(false); }}
+                      className="px-6 py-3 border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-lg font-semibold transition-all flex items-center gap-2"
+                    >
+                      <ArchiveRestore className="w-4 h-4" />
+                      Restore to Active
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => { handleArchive(selectedEmployee); setShowViewModal(false); }}
+                      className="px-6 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold transition-all flex items-center gap-2"
+                    >
+                      <Archive className="w-4 h-4" />
+                      Archive
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       setShowViewModal(false);
