@@ -106,12 +106,24 @@ export default function BoardOfDirectorsForm() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold" style={{ color: '#132552' }}>Board of Directors Directory</h1>
-          <p className="text-gray-600 mt-2">Please complete your profile below</p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
+          <div
+            className="flex items-center gap-3 px-5 py-4 rounded-xl shadow-sm flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #8e3400 0%, #b54400 100%)' }}
+          >
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <img src="/gogmi-logo.png" alt="GoGMI" className="w-10 h-10 object-contain" />
+            </div>
+            <h1 className="text-xl font-bold text-white leading-tight">
+              Board of Directors<br />Directory
+            </h1>
+          </div>
+          <p className="text-sm font-medium" style={{ color: '#132552' }}>
+            Please complete your profile below
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-md p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border-2 p-8 space-y-5" style={{ borderColor: '#132552' }}>
           {error && (
             <div className="border border-red-200 bg-red-50 rounded-lg p-3 flex items-start space-x-2">
               <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
@@ -223,8 +235,8 @@ export default function BoardOfDirectorsForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 px-6 rounded-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: 'linear-gradient(135deg, #8e3400 0%, #b54400 100%)' }}
+            className="w-full py-3 px-6 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: '#132552' }}
           >
             {submitting ? 'Submitting...' : 'Submit Profile'}
           </button>
