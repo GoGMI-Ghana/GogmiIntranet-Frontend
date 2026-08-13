@@ -8,6 +8,48 @@ const POSITION_OPTIONS = [
   'Director Finance and Administration'
 ];
 
+const COUNTRY_CODES = [
+  { code: '+233', label: 'Ghana (+233)' },
+  { code: '+234', label: 'Nigeria (+234)' },
+  { code: '+225', label: "Côte d'Ivoire (+225)" },
+  { code: '+228', label: 'Togo (+228)' },
+  { code: '+229', label: 'Benin (+229)' },
+  { code: '+221', label: 'Senegal (+221)' },
+  { code: '+237', label: 'Cameroon (+237)' },
+  { code: '+241', label: 'Gabon (+241)' },
+  { code: '+243', label: 'DR Congo (+243)' },
+  { code: '+254', label: 'Kenya (+254)' },
+  { code: '+27', label: 'South Africa (+27)' },
+  { code: '+44', label: 'United Kingdom (+44)' },
+  { code: '+1', label: 'United States/Canada (+1)' },
+  { code: '+33', label: 'France (+33)' },
+  { code: '+32', label: 'Belgium (+32)' }
+];
+
+// Formats digits as DD/MM/YYYY as the user types, so entering a date of
+// birth never requires opening a calendar widget - important for older
+// members who found the native calendar picker hard to use, especially
+// on mobile.
+const formatDobInput = (raw) => {
+  const digits = raw.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+};
+
+// Converts a completed DD/MM/YYYY string to the ISO format the backend
+// expects. Returns null if the string is incomplete or not a real date.
+const parseDobToISO = (display) => {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(display);
+  if (!match) return null;
+  const [, day, month, year] = match;
+  const date = new Date(`${year}-${month}-${day}T00:00:00`);
+  if (date.getFullYear() !== Number(year) || date.getMonth() + 1 !== Number(month) || date.getDate() !== Number(day)) {
+    return null;
+  }
+  return `${year}-${month}-${day}`;
+};
+
 export default function BoardOfDirectorsForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -16,6 +58,7 @@ export default function BoardOfDirectorsForm() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    countryCode: '+233',
     phoneNumber: '',
     dateOfBirth: '',
     gender: '',
@@ -29,6 +72,11 @@ export default function BoardOfDirectorsForm() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError('');
+  };
+
+  const handleDobChange = (e) => {
+    setFormData({ ...formData, dateOfBirth: formatDobInput(e.target.value) });
     setError('');
   };
 
@@ -65,12 +113,22 @@ export default function BoardOfDirectorsForm() {
       return;
     }
 
+    const isoDateOfBirth = parseDobToISO(formData.dateOfBirth);
+    if (!isoDateOfBirth) {
+      setError('Please enter a valid date of birth (DD/MM/YYYY)');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const response = await fetch(`${API_URL}/api/board-of-directors/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          phoneNumber: `${formData.countryCode} ${formData.phoneNumber}`.trim(),
+          dateOfBirth: isoDateOfBirth
+        })
       });
       const data = await response.json();
       if (data.success) {
@@ -150,9 +208,21 @@ export default function BoardOfDirectorsForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required className={inputClass} />
+              <div className="flex gap-2">
+                <select
+                  name="countryCode"
+                  value={formData.countryCode}
+                  onChange={handleChange}
+                  className="w-28 flex-shrink-0 px-2 py-2.5 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#8e3400]"
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.code}</option>
+                  ))}
+                </select>
+                <div className="relative flex-1">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required className={inputClass} />
+                </div>
               </div>
             </div>
 
@@ -160,7 +230,16 @@ export default function BoardOfDirectorsForm() {
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth *</label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} required className={inputClass} />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  name="dateOfBirth"
+                  placeholder="DD/MM/YYYY"
+                  value={formData.dateOfBirth}
+                  onChange={handleDobChange}
+                  required
+                  className={inputClass}
+                />
               </div>
             </div>
           </div>
