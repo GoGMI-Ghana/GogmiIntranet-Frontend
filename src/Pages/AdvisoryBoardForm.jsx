@@ -7,24 +7,6 @@ const POSITION_OPTIONS = [
   'Advisory Board Member'
 ];
 
-const COUNTRY_CODES = [
-  { code: '+233', label: 'Ghana (+233)' },
-  { code: '+234', label: 'Nigeria (+234)' },
-  { code: '+225', label: "Côte d'Ivoire (+225)" },
-  { code: '+228', label: 'Togo (+228)' },
-  { code: '+229', label: 'Benin (+229)' },
-  { code: '+221', label: 'Senegal (+221)' },
-  { code: '+237', label: 'Cameroon (+237)' },
-  { code: '+241', label: 'Gabon (+241)' },
-  { code: '+243', label: 'DR Congo (+243)' },
-  { code: '+254', label: 'Kenya (+254)' },
-  { code: '+27', label: 'South Africa (+27)' },
-  { code: '+44', label: 'United Kingdom (+44)' },
-  { code: '+1', label: 'United States/Canada (+1)' },
-  { code: '+33', label: 'France (+33)' },
-  { code: '+32', label: 'Belgium (+32)' }
-];
-
 // Formats digits as DD/MM/YYYY as the user types, so entering a date of
 // birth never requires opening a calendar widget - important for older
 // members who found the native calendar picker hard to use, especially
@@ -57,7 +39,7 @@ export default function AdvisoryBoardForm() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    countryCode: '+233',
+    countryCode: '',
     phoneNumber: '',
     dateOfBirth: '',
     gender: '',
@@ -107,8 +89,8 @@ export default function AdvisoryBoardForm() {
     e.preventDefault();
     setError('');
 
-    if (!formData.fullName || !formData.email || !formData.dateOfBirth || !formData.phoneNumber) {
-      setError('Full name, email, date of birth and phone number are required');
+    if (!formData.fullName || !formData.email || !formData.dateOfBirth || !formData.countryCode || !formData.phoneNumber) {
+      setError('Full name, email, date of birth, country code and phone number are required');
       return;
     }
 
@@ -206,40 +188,44 @@ export default function AdvisoryBoardForm() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
-              <div className="flex gap-2">
-                <select
-                  name="countryCode"
-                  value={formData.countryCode}
-                  onChange={handleChange}
-                  className="w-28 flex-shrink-0 px-2 py-2.5 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#8e3400]"
-                >
-                  {COUNTRY_CODES.map((c) => (
-                    <option key={c.code} value={c.code}>{c.code}</option>
-                  ))}
-                </select>
-                <div className="relative flex-1">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required className={inputClass} />
-                </div>
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Country Code *</label>
+              <input
+                type="text"
+                inputMode="tel"
+                name="countryCode"
+                placeholder="+233"
+                value={formData.countryCode}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#8e3400] transition-all"
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  name="dateOfBirth"
-                  placeholder="DD/MM/YYYY"
-                  value={formData.dateOfBirth}
-                  onChange={handleDobChange}
-                  required
-                  className={inputClass}
-                />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required className={inputClass} />
               </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Date of Birth * <span className="text-gray-400 font-normal">(DD/MM/YYYY)</span>
+            </label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                inputMode="numeric"
+                name="dateOfBirth"
+                placeholder="DD/MM/YYYY"
+                value={formData.dateOfBirth}
+                onChange={handleDobChange}
+                required
+                className={inputClass}
+              />
             </div>
           </div>
 
