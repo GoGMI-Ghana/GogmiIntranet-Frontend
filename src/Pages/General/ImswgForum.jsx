@@ -6,12 +6,13 @@ import { API_URL } from '../../config/api';
 const quarters = [
   { id: 'Q1', label: 'Q1', months: 'Jan – Mar' },
   { id: 'Q2', label: 'Q2', months: 'Apr – Jun' },
+  { id: 'Q3', label: 'Q3', months: 'Jul – Sep' },
 ];
 
 const years = [2026];
 
-// Only Q1 2026 has data — rest are coming soon
-const hasData = (year, quarter) => year === 2026 && quarter === 'Q1';
+// Only Q1 and Q3 2026 have data — rest are coming soon
+const hasData = (year, quarter) => year === 2026 && (quarter === 'Q1' || quarter === 'Q3');
 
 const ImswgForum = () => {
   const [registrations, setRegistrations] = useState([]);
@@ -38,7 +39,7 @@ const ImswgForum = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/imswg/registrations`, {
+      const response = await fetch(`${API_URL}/api/imswg/registrations?quarter=${selectedQuarter}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -55,12 +56,12 @@ const ImswgForum = () => {
 
   const handleExportCSV = () => {
     const token = localStorage.getItem('token');
-    window.open(`${API_URL}/api/imswg/export/csv?token=${token}`, '_blank');
+    window.open(`${API_URL}/api/imswg/export/csv?token=${token}&quarter=${selectedQuarter}`, '_blank');
   };
 
   const handleExportExcel = () => {
     const token = localStorage.getItem('token');
-    window.open(`${API_URL}/api/imswg/export/excel?token=${token}`, '_blank');
+    window.open(`${API_URL}/api/imswg/export/excel?token=${token}&quarter=${selectedQuarter}`, '_blank');
   };
 
   const countries = ['all', ...new Set(registrations.map(r => r.country).filter(Boolean))];
