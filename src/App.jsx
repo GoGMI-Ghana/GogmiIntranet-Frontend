@@ -274,7 +274,9 @@ function App() {
 
         <Route path="/general/imswg-forum" element={
         <ProtectedRoute>
-          <ImswgForum />
+          <Layout>
+            <ImswgForum />
+          </Layout>
          </ProtectedRoute>
         } />
 
