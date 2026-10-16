@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, MapPin, User, Calendar, Clock, Edit2, Search, Bell, Gift, Award, TrendingUp, Users, ChevronRight, Megaphone, Lock, X, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { resolveFileUrl, apiFetch } from '../config/api';
+import { departmentName } from '../config/departments';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -365,9 +366,7 @@ const fetchBirthdays = async () => {
                   <p className="text-xs text-gray-600 mb-1 font-medium">Department</p>
                   <p className="font-semibold text-sm"
                     style={{ color: '#8e3400' }}>
-                    {userData.department === 'admin-finance' ? 'Admin & Finance' :
-                     userData.department === 'corporate-affairs' ? 'Corporate Affairs' :
-                     userData.department?.charAt(0).toUpperCase() + userData.department?.slice(1) || 'General'}
+                    {departmentName(userData.department)}
                   </p>
                 </div>
 

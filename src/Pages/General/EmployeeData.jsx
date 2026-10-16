@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { apiFetch } from '../../config/api';
+import { DEPARTMENTS, normalizeDepartment, departmentName } from '../../config/departments';
 
 export default function EmployeeData() {
   const navigate = useNavigate();
@@ -41,7 +42,6 @@ export default function EmployeeData() {
     lineManagerId: ''
   });
 
-  const departments = ['Directorate', 'Technical', 'Corporate Affairs', 'Finance and Administration'];
   const locations = ['Accra', 'Kumasi', 'Tamale', 'Takoradi', 'Cape Coast'];
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function EmployeeData() {
       name: employee.name || '',
       email: employee.email || '',
       employeeId: employee.employeeId || '',
-      department: employee.department || '',
+      department: normalizeDepartment(employee.department),
       position: employee.position || '',
       costCentre: employee.costCentre || '',
       band: employee.band || '',
@@ -193,7 +193,7 @@ export default function EmployeeData() {
       'Employee ID': emp.employeeId,
       'Name': emp.name,
       'Email': emp.email,
-      'Department': emp.department,
+      'Department': departmentName(emp.department),
       'Position': emp.position || '',
       'Cost Centre': emp.costCentre || '',
       'Band/Grade': emp.band || '',
@@ -233,7 +233,7 @@ export default function EmployeeData() {
       emp.employeeId,
       emp.name,
       emp.email,
-      emp.department,
+      departmentName(emp.department),
       emp.position || '',
       emp.costCentre || '',
       emp.band || '',
@@ -268,7 +268,7 @@ export default function EmployeeData() {
         (emp.email && emp.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (emp.position && emp.position.toLowerCase().includes(searchQuery.toLowerCase()));
       
-      const matchesDepartment = filterDepartment === '' || emp.department === filterDepartment;
+      const matchesDepartment = filterDepartment === '' || normalizeDepartment(emp.department) === filterDepartment;
       const matchesType = filterEmployeeType === '' || emp.employeeType === filterEmployeeType;
       
       return matchesSearch && matchesDepartment && matchesType;
@@ -427,7 +427,7 @@ export default function EmployeeData() {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Departments</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {new Set(activeEmployees.map(e => e.department)).size}
+                  {new Set(activeEmployees.map(e => normalizeDepartment(e.department))).size}
                 </p>
                 <p className="text-xs text-gray-500 mt-2">Active departments</p>
               </div>
@@ -463,8 +463,8 @@ export default function EmployeeData() {
               className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               <option value="">All Departments</option>
-              {departments.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
+              {DEPARTMENTS.map(dept => (
+                <option key={dept.id} value={dept.id}>{dept.name}</option>
               ))}
             </select>
 
@@ -583,7 +583,7 @@ export default function EmployeeData() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm font-medium text-gray-900">{employee.department}</span>
+                          <span className="text-sm font-medium text-gray-900">{departmentName(employee.department)}</span>
                         </td>
                         <td className="px-6 py-4">
                           <span className="text-sm text-gray-600">{employee.position || 'N/A'}</span>
@@ -774,7 +774,7 @@ export default function EmployeeData() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Department</p>
-                        <p className="text-sm font-medium text-gray-900">{selectedEmployee.department}</p>
+                        <p className="text-sm font-medium text-gray-900">{departmentName(selectedEmployee.department)}</p>
                       </div>
                     </div>
 
@@ -969,8 +969,8 @@ export default function EmployeeData() {
                           required
                         >
                           <option value="">Select Department</option>
-                          {departments.map(dept => (
-                            <option key={dept} value={dept}>{dept}</option>
+                          {DEPARTMENTS.map(dept => (
+                            <option key={dept.id} value={dept.id}>{dept.name}</option>
                           ))}
                         </select>
                       </div>

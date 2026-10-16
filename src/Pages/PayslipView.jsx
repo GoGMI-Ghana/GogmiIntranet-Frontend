@@ -4,6 +4,7 @@ import { Download, ArrowLeft, Printer, Home, ChevronRight } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import Layout from '../Components/Layout';
 import { resolveFileUrl, apiFetch } from '../config/api';
+import { departmentName } from '../config/departments';
 
 const NAVY = '#132552';
 const RUST = '#8e3400';
@@ -217,7 +218,7 @@ export default function PayslipView() {
                 <div>
                   <DetailRow label="Name" value={payslip.employeeName} />
                   <DetailRow label="Staff No" value={payslip.staffNo} />
-                  <DetailRow label="Department" value={payslip.department} />
+                  <DetailRow label="Department" value={departmentName(payslip.department)} />
                   <DetailRow label="Region" value={payslip.region} />
                 </div>
                 <div>
