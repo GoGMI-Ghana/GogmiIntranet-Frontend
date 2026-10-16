@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Download, ArrowLeft, Printer, Home, ChevronRight } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import Layout from '../Components/Layout';
-import { API_URL, resolveFileUrl } from '../config/api';
+import { resolveFileUrl, apiFetch } from '../config/api';
 
 const NAVY = '#132552';
 const RUST = '#8e3400';
@@ -49,7 +49,7 @@ export default function PayslipView() {
 
   const fetchCompanySettings = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/company-settings`);
+      const response = await apiFetch(`/api/company-settings`);
       const data = await response.json();
 
       if (data.success) {
@@ -62,7 +62,7 @@ export default function PayslipView() {
 
   const fetchPayslip = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/payslips/${id}`);
+      const response = await apiFetch(`/api/payslips/${id}`);
       const data = await response.json();
       if (data.success) {
         setPayslip(data.payslip);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Eye, EyeOff, Megaphone, Calendar, User } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { apiFetch } from '../../config/api';
 
 export default function AnnouncementsManagement() {
   const [announcements, setAnnouncements] = useState([]);
@@ -24,7 +24,7 @@ export default function AnnouncementsManagement() {
   const fetchAnnouncements = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/announcements/all`);
+      const response = await apiFetch(`/api/announcements/all`);
       const data = await response.json();
       
       if (data.success) {
@@ -50,8 +50,8 @@ export default function AnnouncementsManagement() {
 
     try {
       const url = editingAnnouncement
-        ? `${API_URL}/api/announcements/${editingAnnouncement.id}`
-        : `${API_URL}/api/announcements`;
+        ? `/api/announcements/${editingAnnouncement.id}`
+        : `/api/announcements`;
       
       const method = editingAnnouncement ? 'PUT' : 'POST';
 
@@ -61,7 +61,7 @@ export default function AnnouncementsManagement() {
         authorId: userData.employeeId
       };
 
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json'
@@ -108,7 +108,7 @@ export default function AnnouncementsManagement() {
 
   const handleToggleActive = async (announcement) => {
     try {
-      const response = await fetch(`${API_URL}/api/announcements/${announcement.id}`, {
+      const response = await apiFetch(`/api/announcements/${announcement.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -132,7 +132,7 @@ export default function AnnouncementsManagement() {
     if (!window.confirm('Are you sure you want to delete this announcement?')) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/announcements/${id}`, {
+      const response = await apiFetch(`/api/announcements/${id}`, {
         method: 'DELETE'
       });
 

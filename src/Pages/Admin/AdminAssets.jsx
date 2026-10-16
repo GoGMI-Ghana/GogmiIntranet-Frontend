@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Plus, X, Search, Eye, Archive, ArchiveRestore, Download, FileSpreadsheet, Edit, Home, ChevronRight, Monitor, Armchair, Car, Wrench, LayoutGrid } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { API_URL } from '../../config/api';
+import { apiFetch } from '../../config/api';
 
 const CATEGORY_CONFIG = {
   'Electronics': { icon: Monitor, color: 'bg-blue-50 text-blue-700 border-blue-200' },
@@ -40,7 +40,7 @@ export default function AdminAssets() {
   const fetchAssets = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/assets`, { headers: getAuthHeaders() });
+      const response = await apiFetch(`/api/assets`, { headers: getAuthHeaders() });
       const data = await response.json();
       if (data.success) setAssets(data.assets || []);
     } catch (error) {
@@ -80,7 +80,7 @@ export default function AdminAssets() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/assets`, {
+      const response = await apiFetch(`/api/assets`, {
         method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(formData)
       });
       const data = await response.json();
@@ -93,7 +93,7 @@ export default function AdminAssets() {
   const handleUpdate = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/assets/${editingAsset.id}`, {
+      const response = await apiFetch(`/api/assets/${editingAsset.id}`, {
         method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(formData)
       });
       const data = await response.json();
@@ -111,7 +111,7 @@ export default function AdminAssets() {
   const handleArchive = async (id) => {
     if (!window.confirm('Archive this asset?')) return;
     try {
-      const res = await fetch(`${API_URL}/api/assets/${id}/archive`, { method: 'PUT', headers: getAuthHeaders() });
+      const res = await apiFetch(`/api/assets/${id}/archive`, { method: 'PUT', headers: getAuthHeaders() });
       const data = await res.json();
       if (data.success) fetchAssets();
     } catch { alert('Error archiving'); }
@@ -120,7 +120,7 @@ export default function AdminAssets() {
   const handleUnarchive = async (id) => {
     if (!window.confirm('Unarchive this asset?')) return;
     try {
-      const res = await fetch(`${API_URL}/api/assets/${id}/unarchive`, { method: 'PUT', headers: getAuthHeaders() });
+      const res = await apiFetch(`/api/assets/${id}/unarchive`, { method: 'PUT', headers: getAuthHeaders() });
       const data = await res.json();
       if (data.success) fetchAssets();
     } catch { alert('Error unarchiving'); }

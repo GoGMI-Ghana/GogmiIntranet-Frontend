@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, MapPin, User, Calendar, Clock, Edit2, Search, Bell, Gift, Award, TrendingUp, Users, ChevronRight, Megaphone, Lock, X, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL, resolveFileUrl } from '../config/api';
+import { resolveFileUrl, apiFetch } from '../config/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -78,7 +78,7 @@ export default function Dashboard() {
   const fetchAnnouncements = async () => {
     setLoadingAnnouncements(true);
     try {
-      const response = await fetch(`${API_URL}/api/announcements`);
+      const response = await apiFetch(`/api/announcements`);
       const data = await response.json();
       
       if (data.success) {
@@ -94,7 +94,7 @@ export default function Dashboard() {
 
 const fetchBirthdays = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/birthdays?period=month`);
+      const response = await apiFetch(`/api/birthdays?period=month`);
       const data = await response.json();
       if (data.success) {
         setBirthdays(data.birthdays);
@@ -106,7 +106,7 @@ const fetchBirthdays = async () => {
 
   const fetchAnniversaries = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/anniversaries?period=month`);
+      const response = await apiFetch(`/api/anniversaries?period=month`);
       const data = await response.json();
       if (data.success) {
         setAnniversaries(data.anniversaries);
@@ -122,7 +122,7 @@ const fetchBirthdays = async () => {
   // Fetch leave balance function
   const fetchLeaveBalance = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/leaves/balance/${userData.employeeId}`);
+      const response = await apiFetch(`/api/leaves/balance/${userData.employeeId}`);
       const data = await response.json();
       
       if (data.success) {
@@ -144,7 +144,7 @@ const fetchBirthdays = async () => {
     const fetchEmployees = async () => {
     setLoadingEmployees(true);
     try {
-      const response = await fetch(`${API_URL}/api/users`);
+      const response = await apiFetch(`/api/users`);
       const data = await response.json();
       
       if (data.success) {
@@ -274,7 +274,7 @@ const fetchBirthdays = async () => {
     setDepartmentError('');
 
     try {
-     const response = await fetch(`${API_URL}/api/verify-department`, {
+     const response = await apiFetch(`/api/verify-department`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

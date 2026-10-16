@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Users, Download, Search, Calendar, Globe, Filter, Clock } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { API_URL, apiFetch } from '../../config/api';
 
 const quarters = [
   { id: 'Q1', label: 'Q1', months: 'Jan – Mar' },
@@ -39,7 +39,7 @@ const ImswgForum = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/imswg/registrations?quarter=${selectedQuarter}`, {
+      const response = await apiFetch(`/api/imswg/registrations?quarter=${selectedQuarter}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {

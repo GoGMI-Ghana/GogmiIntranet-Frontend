@@ -57,11 +57,12 @@ import Payments from './Pages/Admin/Payments';
 
 
 import DepartmentProtectedRoute from './Components/DepartmentProtectedRoute';
+import { getToken } from './config/api';
 
 function ProtectedRoute({ children, department }) {
   const user = localStorage.getItem('user');
-  
-  if (!user) {
+
+  if (!user || !getToken()) {
     return <Navigate to="/login" replace />;
   }
 

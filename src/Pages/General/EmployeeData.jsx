@@ -7,7 +7,7 @@ import {
   Users, FileSpreadsheet, Home, Archive, ArchiveRestore
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { API_URL } from '../../config/api';
+import { apiFetch } from '../../config/api';
 
 export default function EmployeeData() {
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ export default function EmployeeData() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/users`);
+      const response = await apiFetch(`/api/users`);
       const data = await response.json();
       if (data.success) {
         // Filter out system/test accounts
@@ -114,7 +114,7 @@ export default function EmployeeData() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/users/${selectedEmployee.id}`, {
+      const response = await apiFetch(`/api/users/${selectedEmployee.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ export default function EmployeeData() {
   const handleArchive = async (employee) => {
     if (!window.confirm(`Mark ${employee.name} as a former employee? This keeps their record but removes them from the active workforce list - you can restore them anytime.`)) return;
     try {
-      const response = await fetch(`${API_URL}/api/users/${employee.id}`, {
+      const response = await apiFetch(`/api/users/${employee.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employmentStatus: 'Former' })
@@ -161,7 +161,7 @@ export default function EmployeeData() {
 
   const handleUnarchive = async (employee) => {
     try {
-      const response = await fetch(`${API_URL}/api/users/${employee.id}`, {
+      const response = await apiFetch(`/api/users/${employee.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employmentStatus: 'Active' })

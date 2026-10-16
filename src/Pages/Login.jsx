@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Mail, IdCard, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { API_URL } from '../config/api';
+import { apiFetch, clearSession } from '../config/api';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -33,7 +33,9 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/login`, {
+      // Drop any previous session before signing in
+      clearSession();
+      const response = await apiFetch(`/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

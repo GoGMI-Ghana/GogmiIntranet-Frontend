@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, ArrowLeft } from 'lucide-react';
+import { apiFetch } from '../config/api';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function ResetPassword() {
     setMessage('');
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
+      const response = await apiFetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -59,7 +60,7 @@ export default function ResetPassword() {
     setMessage('');
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await apiFetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, newPassword })

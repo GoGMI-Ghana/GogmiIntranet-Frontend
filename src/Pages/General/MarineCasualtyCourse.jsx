@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Download, FileSpreadsheet, Search, Filter, X } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { API_URL, apiFetch } from '../../config/api';
 
 export default function MarineCasualtyCourse() {
   const [registrations, setRegistrations] = useState([]);
@@ -32,7 +32,7 @@ export default function MarineCasualtyCourse() {
   const fetchRegistrations = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/marine-casualty-course/registrations`, {
+      const response = await apiFetch(`/api/marine-casualty-course/registrations`, {
         headers: getAuthHeaders()
       });
       const data = await response.json();

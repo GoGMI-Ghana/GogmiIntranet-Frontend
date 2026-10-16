@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { User, Mail, Phone, Calendar, Globe, Briefcase, MapPin, Linkedin, AlertCircle, CheckCircle } from 'lucide-react';
-import { API_URL } from '../config/api';
+import { apiFetch } from '../config/api';
 
 const POSITION_OPTIONS = [
   'Advisory Board Chair',
@@ -102,7 +102,7 @@ export default function AdvisoryBoardForm() {
 
     setSubmitting(true);
     try {
-      const response = await fetch(`${API_URL}/api/advisory-board/submit`, {
+      const response = await apiFetch(`/api/advisory-board/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

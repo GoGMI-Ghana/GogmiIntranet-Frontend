@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Eye, Home, ChevronRight, Calendar, Banknote, Users, FileText, X } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { apiFetch } from '../../config/api';
 
 const NAVY = '#132552';
 const RUST = '#8e3400';
@@ -132,7 +132,7 @@ export default function Payroll() {
   const fetchPayslips = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/payslips`);
+      const response = await apiFetch(`/api/payslips`);
       const data = await response.json();
       if (data.success) {
         setPayslips(data.payslips);
@@ -146,7 +146,7 @@ export default function Payroll() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/users`);
+      const response = await apiFetch(`/api/users`);
       const data = await response.json();
       if (data.success) {
         setEmployees(data.users);
@@ -208,7 +208,7 @@ export default function Payroll() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/payslips`, {
+      const response = await apiFetch(`/api/payslips`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

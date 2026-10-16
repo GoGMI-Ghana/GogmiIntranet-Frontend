@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Edit2, Eye, UserPlus, X, Save , Home, ChevronRight } from 'lucide-react';
+import { apiFetch } from '../../config/api';
 
 export default function EmployeeData() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function EmployeeData() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/users');
+      const response = await apiFetch('/api/users');
       const data = await response.json();
       if (data.success) {
         setEmployees(data.users);
@@ -74,7 +75,7 @@ export default function EmployeeData() {
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/users/${selectedEmployee.id}`, {
+      const response = await apiFetch(`/api/users/${selectedEmployee.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
