@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { User, Mail, Phone, MapPin, Building, Calendar, Edit2, Save, X, Lock, Upload, Camera } from 'lucide-react';
 import Layout from '../Components/Layout';
-import { API_URL, resolveFileUrl } from '../config/api';
+import { resolveFileUrl, apiFetch } from '../config/api';
 
 export default function Profile() {
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
@@ -76,7 +76,7 @@ const handleFileChange = async (e) => {
     formData.append('userId', userData.id);
 
     try {
-      const response = await fetch(`${API_URL}/api/profile/picture`, {
+      const response = await apiFetch(`/api/profile/picture`, {
         method: 'POST',
         body: formData
       });
@@ -103,7 +103,7 @@ const handleFileChange = async (e) => {
 
 const handleSave = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/profile`, {
+      const response = await apiFetch(`/api/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

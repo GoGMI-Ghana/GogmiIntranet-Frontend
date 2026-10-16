@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Edit2, Trash2, Eye, Building2, Mail, Phone, User, MapPin } from 'lucide-react';
-import DepartmentProtection from '../../Components/DepartmentProtection';
 
 export default function CorporateStakeholders() {
   const [stakeholders, setStakeholders] = useState([]);
@@ -112,7 +111,7 @@ export default function CorporateStakeholders() {
   };
 
   return (
-    <DepartmentProtection departmentId="corporate-affairs">
+    <>
       <div className="p-8 bg-gray-50 min-h-screen">
         {/* Header */}
         <div className="mb-8">
@@ -544,6 +543,6 @@ export default function CorporateStakeholders() {
           </div>
         )}
       </div>
-    </DepartmentProtection>
+    </>
   );
 }

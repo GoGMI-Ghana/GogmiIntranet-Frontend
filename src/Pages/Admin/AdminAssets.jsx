@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Package, Plus, X, Search, Eye, Archive, ArchiveRestore, Download, FileSpreadsheet, Edit, Home, ChevronRight, Monitor, Armchair, Car, Wrench, LayoutGrid } from 'lucide-react';
+import { Package, Plus, X, Search, Eye, Archive, ArchiveRestore, Download, FileSpreadsheet, Edit, Monitor, Armchair, Car, Wrench, LayoutGrid } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { API_URL } from '../../config/api';
+import { apiFetch } from '../../config/api';
 
 const CATEGORY_CONFIG = {
   'Electronics': { icon: Monitor, color: 'bg-blue-50 text-blue-700 border-blue-200' },
@@ -23,7 +22,6 @@ export default function AdminAssets() {
   const [editMode, setEditMode] = useState(false);
   const [editingAsset, setEditingAsset] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: '', category: '', description: '', modelNumber: '', serialNumber: '',
@@ -40,7 +38,7 @@ export default function AdminAssets() {
   const fetchAssets = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/assets`, { headers: getAuthHeaders() });
+      const response = await apiFetch(`/api/assets`, { headers: getAuthHeaders() });
       const data = await response.json();
       if (data.success) setAssets(data.assets || []);
     } catch (error) {
@@ -80,7 +78,7 @@ export default function AdminAssets() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/assets`, {
+      const response = await apiFetch(`/api/assets`, {
         method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(formData)
       });
       const data = await response.json();
@@ -93,7 +91,7 @@ export default function AdminAssets() {
   const handleUpdate = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/assets/${editingAsset.id}`, {
+      const response = await apiFetch(`/api/assets/${editingAsset.id}`, {
         method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(formData)
       });
       const data = await response.json();
@@ -111,7 +109,7 @@ export default function AdminAssets() {
   const handleArchive = async (id) => {
     if (!window.confirm('Archive this asset?')) return;
     try {
-      const res = await fetch(`${API_URL}/api/assets/${id}/archive`, { method: 'PUT', headers: getAuthHeaders() });
+      const res = await apiFetch(`/api/assets/${id}/archive`, { method: 'PUT', headers: getAuthHeaders() });
       const data = await res.json();
       if (data.success) fetchAssets();
     } catch { alert('Error archiving'); }
@@ -120,7 +118,7 @@ export default function AdminAssets() {
   const handleUnarchive = async (id) => {
     if (!window.confirm('Unarchive this asset?')) return;
     try {
-      const res = await fetch(`${API_URL}/api/assets/${id}/unarchive`, { method: 'PUT', headers: getAuthHeaders() });
+      const res = await apiFetch(`/api/assets/${id}/unarchive`, { method: 'PUT', headers: getAuthHeaders() });
       const data = await res.json();
       if (data.success) fetchAssets();
     } catch { alert('Error unarchiving'); }
@@ -189,17 +187,6 @@ export default function AdminAssets() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-6 lg:p-8">
-
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm mb-6">
-          <button onClick={() => navigate('/')} className="flex items-center gap-1 text-gray-500 hover:text-gray-900">
-            <Home className="w-4 h-4" /> Dashboard
-          </button>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-          <button onClick={() => navigate('/admin-finance')} className="text-gray-500 hover:text-gray-900">Admin &amp; Finance</button>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-900 font-medium">Assets</span>
-        </div>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">

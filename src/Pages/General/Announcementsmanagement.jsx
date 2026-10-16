@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Eye, EyeOff, Megaphone, Calendar, User } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { apiFetch } from '../../config/api';
+import { normalizeDepartment } from '../../config/departments';
 
 export default function AnnouncementsManagement() {
   const [announcements, setAnnouncements] = useState([]);
@@ -8,6 +9,8 @@ export default function AnnouncementsManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState(null);
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
+  // Must match the departments allowed by the backend announcement routes
+  const canManage = ['corporate-affairs', 'directorate'].includes(normalizeDepartment(userData.department));
 
   const [formData, setFormData] = useState({
     title: '',
@@ -24,7 +27,7 @@ export default function AnnouncementsManagement() {
   const fetchAnnouncements = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/announcements/all`);
+      const response = await apiFetch(canManage ? `/api/announcements/all` : `/api/announcements`);
       const data = await response.json();
       
       if (data.success) {
@@ -50,8 +53,8 @@ export default function AnnouncementsManagement() {
 
     try {
       const url = editingAnnouncement
-        ? `${API_URL}/api/announcements/${editingAnnouncement.id}`
-        : `${API_URL}/api/announcements`;
+        ? `/api/announcements/${editingAnnouncement.id}`
+        : `/api/announcements`;
       
       const method = editingAnnouncement ? 'PUT' : 'POST';
 
@@ -61,7 +64,7 @@ export default function AnnouncementsManagement() {
         authorId: userData.employeeId
       };
 
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json'
@@ -108,7 +111,7 @@ export default function AnnouncementsManagement() {
 
   const handleToggleActive = async (announcement) => {
     try {
-      const response = await fetch(`${API_URL}/api/announcements/${announcement.id}`, {
+      const response = await apiFetch(`/api/announcements/${announcement.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -132,7 +135,7 @@ export default function AnnouncementsManagement() {
     if (!window.confirm('Are you sure you want to delete this announcement?')) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/announcements/${id}`, {
+      const response = await apiFetch(`/api/announcements/${id}`, {
         method: 'DELETE'
       });
 
@@ -234,6 +237,7 @@ export default function AnnouncementsManagement() {
       </div>
 
       {/* Create Button */}
+      {canManage && (
       <div className="mb-6">
         <button
           onClick={() => {
@@ -253,6 +257,7 @@ export default function AnnouncementsManagement() {
           Create Announcement
         </button>
       </div>
+      )}
 
       {/* Announcements List */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -265,12 +270,14 @@ export default function AnnouncementsManagement() {
           <div className="text-center py-12">
             <Megaphone className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 mb-4">No announcements yet</p>
+            {canManage && (
             <button
               onClick={() => setShowModal(true)}
               className="px-6 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg font-semibold transition-all"
             >
               Create Your First Announcement
             </button>
+            )}
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
@@ -311,6 +318,7 @@ export default function AnnouncementsManagement() {
                     </div>
                   </div>
                   
+                  {canManage && (
                   <div className="flex gap-2 ml-4">
                     <button
                       onClick={() => handleToggleActive(announcement)}
@@ -338,6 +346,7 @@ export default function AnnouncementsManagement() {
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
+                  )}
                 </div>
               </div>
             ))}

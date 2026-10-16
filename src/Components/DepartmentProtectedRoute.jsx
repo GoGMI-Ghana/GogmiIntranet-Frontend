@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { ShieldAlert } from 'lucide-react';
+import { normalizeDepartment, departmentName, canAccessDepartment } from '../config/departments';
 
 export default function DepartmentProtectedRoute({ children, requiredDepartment }) {
   const userStr = localStorage.getItem('user');
@@ -9,37 +10,10 @@ export default function DepartmentProtectedRoute({ children, requiredDepartment 
   }
 
   const user = JSON.parse(userStr);
-  
-  // Normalize department name - handle both "Corporate Affairs" and "corporate-affairs" formats
-  const normalizeDepartment = (dept) => {
-    if (!dept) return '';
-    // Convert to lowercase and replace spaces/hyphens for comparison
-    return dept.toLowerCase().replace(/[\s-]/g, '');
-  };
 
-  // Map route departments to normalized format
-  const departmentMap = {
-    'admin-finance': 'financeandadministration',
-    'technical': 'technical',
-    'corporate-affairs': 'corporateaffairs',
-    'directorate': 'directorate',
-    'general': 'general'
-  };
-
+  // Handles both "admin-finance" and older "Finance and Administration" style values
   const normalizedUserDept = normalizeDepartment(user.department);
-  const normalizedRequiredDept = departmentMap[requiredDepartment] || normalizeDepartment(requiredDepartment);
-  
-  // Allow access if:
-  // 1. User is in Directorate (executives have full access)
-  // 2. User is ADMIN001 (testing account)
-  // 3. User belongs to the required department (normalized comparison)
-  // 4. Route is 'general' (accessible to everyone)
-  
-  const hasAccess = 
-    normalizedUserDept === 'directorate' ||
-    user.employeeId === 'ADMIN001' ||
-    normalizedUserDept === normalizedRequiredDept ||
-    requiredDepartment === 'general';
+  const hasAccess = canAccessDepartment(user.department, requiredDepartment);
 
   if (!hasAccess) {
     return (
@@ -62,7 +36,7 @@ export default function DepartmentProtectedRoute({ children, requiredDepartment 
               <div className="text-sm">
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Your Department:</span>
-                  <span className="font-semibold text-gray-900">{user.department}</span>
+                  <span className="font-semibold text-gray-900">{departmentName(user.department)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Access Level:</span>

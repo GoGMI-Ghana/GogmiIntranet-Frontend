@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Download, Search, DollarSign, UserCheck, Building2, GraduationCap, Briefcase, Award, Crown, Globe, Mail, Phone, Calendar, Eye } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { API_URL, apiFetch } from '../../config/api';
 
 const Memberships = () => {
   const [applications, setApplications] = useState([]);
@@ -19,7 +19,7 @@ const Memberships = () => {
   const fetchApplications = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/memberships/applications`, {
+      const response = await apiFetch(`/api/memberships/applications`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

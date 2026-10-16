@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, MapPin, Briefcase, Building2, Calendar, Phone, Users, Hash } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { apiFetch } from '../../config/api';
 
 const RegisterEmployee = () => {
   const [formData, setFormData] = useState({
@@ -35,7 +35,7 @@ const RegisterEmployee = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch(`${API_URL}/api/admin/register`, {
+      const response = await apiFetch(`/api/admin/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

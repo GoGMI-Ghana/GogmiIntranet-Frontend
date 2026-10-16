@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import DepartmentProtection from '../Components/DepartmentProtection';
 import { FileText, Users, Package, Database, UserSquare2, Megaphone, Calendar, GraduationCap } from 'lucide-react';
 
 export default function General() {
@@ -75,7 +74,7 @@ export default function General() {
   ];
 
   return (
-    <DepartmentProtection departmentId="general">
+    <>
       <div className="p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#132552' }}>
@@ -112,6 +111,6 @@ export default function General() {
           })}
         </div>
       </div>
-    </DepartmentProtection>
+    </>
   );
 }

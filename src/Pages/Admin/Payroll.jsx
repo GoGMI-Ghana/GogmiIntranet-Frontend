@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Eye, Home, ChevronRight, Calendar, Banknote, Users, FileText, X } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { Search, Plus, Eye, Home, ChevronRight, Calendar, Banknote, Users, FileText, X, Edit2 } from 'lucide-react';
+import { apiFetch } from '../../config/api';
+import { departmentName } from '../../config/departments';
 
 const NAVY = '#132552';
 const RUST = '#8e3400';
@@ -57,7 +58,10 @@ export default function Payroll() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  // The payslip being corrected, or null when creating a new one
+  const [editingPayslip, setEditingPayslip] = useState(null);
 
+  // Keys must match the backend Payslip fields: ssfEmployee and psfNo are labelled "SSNIT" in the UI
   const [formData, setFormData] = useState({
     employeeId: '',
     month: '',
@@ -78,14 +82,14 @@ export default function Payroll() {
     totalSSF: '',
     employerPF: '',
     totalPF: '',
-    ssnit: '',
+    ssfEmployee: '',
     incomeTax: '',
     providentFund: '',
     loans: '',
     otherDeductions: '',
     bankName: '',
     accountNumber: '',
-    ssnitNo: '',
+    psfNo: '',
     taxableBenefits: ''
   });
 
@@ -115,23 +119,40 @@ export default function Payroll() {
       totalSSF: '',
       employerPF: '',
       totalPF: '',
-      ssnit: '',
+      ssfEmployee: '',
       incomeTax: '',
       providentFund: '',
       loans: '',
       otherDeductions: '',
       bankName: '',
       accountNumber: '',
-      ssnitNo: '',
+      psfNo: '',
       taxableBenefits: ''
     });
     setSelectedEmployee(null);
+    setEditingPayslip(null);
+  };
+
+  const handleEdit = (payslip) => {
+    // Fill the form with the saved values (blank instead of null so inputs stay controlled)
+    const values = {};
+    Object.keys(formData).forEach(field => {
+      values[field] = payslip[field] ?? '';
+    });
+    setFormData(values);
+    setEditingPayslip(payslip);
+    setSelectedEmployee(
+      employees.find(emp => emp.employeeId === payslip.employeeId) ||
+      { employeeId: payslip.employeeId, name: payslip.employeeName }
+    );
+    setShowCreateForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const fetchPayslips = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/payslips`);
+      const response = await apiFetch(`/api/payslips`);
       const data = await response.json();
       if (data.success) {
         setPayslips(data.payslips);
@@ -145,7 +166,7 @@ export default function Payroll() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/users`);
+      const response = await apiFetch(`/api/users`);
       const data = await response.json();
       if (data.success) {
         setEmployees(data.users);
@@ -191,7 +212,7 @@ export default function Payroll() {
                     parseFloat(formData.bonus || 0) +
                     parseFloat(formData.otherAllowances || 0);
 
-    const deductions = parseFloat(formData.ssnit || 0) +
+    const deductions = parseFloat(formData.ssfEmployee || 0) +
                       parseFloat(formData.incomeTax || 0) +
                       parseFloat(formData.providentFund || 0) +
                       parseFloat(formData.loans || 0) +
@@ -206,27 +227,32 @@ export default function Payroll() {
     e.preventDefault();
     setLoading(true);
 
+    const action = editingPayslip ? 'update' : 'create';
+
     try {
-      const response = await fetch(`${API_URL}/api/payslips`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await apiFetch(
+        editingPayslip ? `/api/payslips/${editingPayslip.id}` : `/api/payslips`,
+        {
+          method: editingPayslip ? 'PUT' : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        }
+      );
 
       const data = await response.json();
 
       if (data.success) {
-        alert('Payslip created successfully!');
+        alert(editingPayslip ? 'Payslip updated successfully!' : 'Payslip created successfully!');
         setShowCreateForm(false);
         fetchPayslips();
         resetForm();
       } else {
-        alert(data.message || 'Failed to create payslip');
+        alert(data.message || `Failed to ${action} payslip`);
       }
     } catch (error) {
-      alert('Error creating payslip');
+      alert(`Error trying to ${action} payslip`);
       console.error('Error:', error);
     } finally {
       setLoading(false);
@@ -266,7 +292,10 @@ export default function Payroll() {
             <p className="text-gray-500 mt-1">Create and manage employee payslips</p>
           </div>
           <button
-            onClick={() => setShowCreateForm(!showCreateForm)}
+            onClick={() => {
+              if (showCreateForm) resetForm();
+              setShowCreateForm(!showCreateForm);
+            }}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm hover:shadow-md transition-shadow"
             style={{ background: BRAND_GRADIENT }}
           >
@@ -297,8 +326,16 @@ export default function Payroll() {
         {showCreateForm && (
           <div className="bg-white rounded-xl border border-gray-200 mb-8 overflow-hidden">
             <div className="px-6 py-5 border-b border-gray-100">
-              <h2 className="text-base font-semibold text-gray-900">New Payslip</h2>
-              <p className="text-sm text-gray-500 mt-0.5">Select an employee and enter the pay details for this period.</p>
+              <h2 className="text-base font-semibold text-gray-900">
+                {editingPayslip
+                  ? `Edit Payslip: ${editingPayslip.employeeName}, ${editingPayslip.month} ${editingPayslip.year}`
+                  : 'New Payslip'}
+              </h2>
+              <p className="text-sm text-gray-500 mt-0.5">
+                {editingPayslip
+                  ? 'Correct the pay details. Totals and net pay are recalculated when you save.'
+                  : 'Select an employee and enter the pay details for this period.'}
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -307,7 +344,8 @@ export default function Payroll() {
                   <select
                     value={formData.employeeId}
                     onChange={handleEmployeeSelect}
-                    className={inputClass}
+                    disabled={!!editingPayslip}
+                    className={`${inputClass} disabled:bg-gray-100`}
                     required
                   >
                     <option value="">Select employee</option>
@@ -375,7 +413,7 @@ export default function Payroll() {
                       <input type="number" step="0.01" name="annualSalary" value={formData.annualSalary} onChange={handleChange} className={inputClass} />
                     </Field>
                     <Field label="SSNIT No">
-                      <input type="text" name="ssnitNo" value={formData.ssnitNo} onChange={handleChange} className={inputClass} />
+                      <input type="text" name="psfNo" value={formData.psfNo} onChange={handleChange} className={inputClass} />
                     </Field>
                   </Section>
 
@@ -409,7 +447,7 @@ export default function Payroll() {
 
                   <Section title="Deductions">
                     <Field label="SSNIT">
-                      <input type="number" step="0.01" name="ssnit" value={formData.ssnit} onChange={handleChange} className={inputClass} />
+                      <input type="number" step="0.01" name="ssfEmployee" value={formData.ssfEmployee} onChange={handleChange} className={inputClass} />
                     </Field>
                     <Field label="Income Tax">
                       <input type="number" step="0.01" name="incomeTax" value={formData.incomeTax} onChange={handleChange} className={inputClass} />
@@ -462,7 +500,9 @@ export default function Payroll() {
                       className="flex-1 px-5 py-2.5 rounded-lg font-semibold text-white shadow-sm hover:shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{ background: BRAND_GRADIENT }}
                     >
-                      {loading ? 'Creating...' : 'Create Payslip'}
+                      {editingPayslip
+                        ? (loading ? 'Saving...' : 'Save Changes')
+                        : (loading ? 'Creating...' : 'Create Payslip')}
                     </button>
                   </div>
                 </>
@@ -540,7 +580,7 @@ export default function Payroll() {
                       <td className="px-6 py-4 text-gray-600 whitespace-nowrap">{payslip.month} {payslip.year}</td>
                       <td className="px-6 py-4">
                         <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                          {payslip.department}
+                          {departmentName(payslip.department)}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right tabular-nums text-gray-900 whitespace-nowrap">
@@ -556,6 +596,13 @@ export default function Payroll() {
                           title="View Payslip"
                         >
                           <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(payslip)}
+                          className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                          title="Edit Payslip"
+                        >
+                          <Edit2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>

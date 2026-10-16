@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Users, RefreshCw, Trash2, X, Archive, ArchiveRestore } from 'lucide-react';
-import { API_URL } from '../../config/api';
+import { apiFetch } from '../../config/api';
 
 const POLL_INTERVAL_MS = 15000;
 
@@ -19,7 +19,7 @@ export default function BoardOfDirectors() {
   const fetchMembers = useCallback(async ({ silent } = {}) => {
     if (!silent) setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/board-of-directors`, { headers: getAuthHeaders() });
+      const response = await apiFetch(`/api/board-of-directors`, { headers: getAuthHeaders() });
       const data = await response.json();
       if (data.success) {
         setMembers(data.members);
@@ -45,7 +45,7 @@ export default function BoardOfDirectors() {
   const handleDelete = async (id) => {
     if (!window.confirm('Permanently remove this member from the directory? This cannot be undone - archive instead if they may return.')) return;
     try {
-      const response = await fetch(`${API_URL}/api/board-of-directors/${id}`, {
+      const response = await apiFetch(`/api/board-of-directors/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
@@ -62,7 +62,7 @@ export default function BoardOfDirectors() {
   const handleArchive = async (id) => {
     if (!window.confirm('Archive this member? Use this when they are no longer active (e.g. they have left).')) return;
     try {
-      const response = await fetch(`${API_URL}/api/board-of-directors/${id}/archive`, {
+      const response = await apiFetch(`/api/board-of-directors/${id}/archive`, {
         method: 'PUT',
         headers: getAuthHeaders()
       });
@@ -78,7 +78,7 @@ export default function BoardOfDirectors() {
 
   const handleUnarchive = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/api/board-of-directors/${id}/unarchive`, {
+      const response = await apiFetch(`/api/board-of-directors/${id}/unarchive`, {
         method: 'PUT',
         headers: getAuthHeaders()
       });

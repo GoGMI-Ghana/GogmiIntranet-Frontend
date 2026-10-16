@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Eye, Download, Calendar, FileText, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Components/Layout';
-import { API_URL } from '../config/api';
+import { apiFetch } from '../config/api';
+import { departmentName } from '../config/departments';
 
 export default function EmployeePayslips() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function EmployeePayslips() {
   const fetchMyPayslips = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/payslips/employee/${userData.employeeId}`);
+      const response = await apiFetch(`/api/payslips/employee/${userData.employeeId}`);
       const data = await response.json();
       
       if (data.success) {
@@ -77,9 +78,7 @@ export default function EmployeePayslips() {
           <div className="text-right">
             <p className="text-sm text-gray-500">Department</p>
             <p className="font-semibold text-gray-900">
-              {userData.department === 'admin-finance' ? 'Admin & Finance' :
-               userData.department === 'corporate-affairs' ? 'Corporate Affairs' :
-               userData.department?.charAt(0).toUpperCase() + userData.department?.slice(1) || 'General'}
+              {departmentName(userData.department)}
             </p>
           </div>
         </div>

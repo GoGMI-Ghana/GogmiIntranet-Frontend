@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Download, ArrowLeft, Printer, Home, ChevronRight } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import Layout from '../Components/Layout';
-import { API_URL, resolveFileUrl } from '../config/api';
+import { resolveFileUrl, apiFetch } from '../config/api';
+import { departmentName } from '../config/departments';
 
 const NAVY = '#132552';
 const RUST = '#8e3400';
@@ -49,7 +50,7 @@ export default function PayslipView() {
 
   const fetchCompanySettings = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/company-settings`);
+      const response = await apiFetch(`/api/company-settings`);
       const data = await response.json();
 
       if (data.success) {
@@ -62,7 +63,7 @@ export default function PayslipView() {
 
   const fetchPayslip = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/payslips/${id}`);
+      const response = await apiFetch(`/api/payslips/${id}`);
       const data = await response.json();
       if (data.success) {
         setPayslip(data.payslip);
@@ -217,7 +218,7 @@ export default function PayslipView() {
                 <div>
                   <DetailRow label="Name" value={payslip.employeeName} />
                   <DetailRow label="Staff No" value={payslip.staffNo} />
-                  <DetailRow label="Department" value={payslip.department} />
+                  <DetailRow label="Department" value={departmentName(payslip.department)} />
                   <DetailRow label="Region" value={payslip.region} />
                 </div>
                 <div>
@@ -229,7 +230,7 @@ export default function PayslipView() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 mb-8 pb-8 border-b border-gray-100">
-                <DetailRow label="PSF No" value={payslip.psfNo || 'N/A'} />
+                <DetailRow label="SSNIT No" value={payslip.psfNo || 'N/A'} />
                 <DetailRow label="Annual Salary" value={`GH₵${formatMoney(payslip.annualSalary)}`} />
               </div>
 
@@ -275,7 +276,7 @@ export default function PayslipView() {
                   <h3 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: RUST }}>Deductions</h3>
                   <div className="rounded-lg border border-gray-100 px-4 py-1 divide-y divide-gray-100">
                     {parseFloat(payslip.ssfEmployee || 0) > 0 && (
-                      <LineItem label="SSF Employee" value={payslip.ssfEmployee} />
+                      <LineItem label="SSNIT" value={payslip.ssfEmployee} />
                     )}
                     {parseFloat(payslip.incomeTax || 0) > 0 && (
                       <LineItem label="Income Tax" value={payslip.incomeTax} />

@@ -1,7 +1,7 @@
 import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, X, Home, LogOut, Settings, User } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { resolveFileUrl } from '../config/api';
+import { resolveFileUrl, clearSession } from '../config/api';
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
@@ -92,8 +92,7 @@ const quickActions = [
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('verifiedDepartments');
+    clearSession();
     navigate('/login');
     if (window.innerWidth < 768) {
       onClose();
