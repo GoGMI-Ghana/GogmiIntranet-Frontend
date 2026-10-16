@@ -97,7 +97,7 @@ function App() {
         } />
 
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><Layout><Settings /></Layout></ProtectedRoute>} />
 
         <Route path="/" element={
           <ProtectedRoute>
@@ -157,13 +157,17 @@ function App() {
         
       <Route path="/general/stakeholders" element={
         <ProtectedRoute>
-          <Stakeholders />
+          <Layout>
+            <Stakeholders />
+          </Layout>
         </ProtectedRoute>
       } />
         
         <Route path="/corporate-affairs/assets" element={
           <ProtectedRoute department="corporate-affairs">
-            <Assets />
+            <Layout>
+              <Assets />
+            </Layout>
           </ProtectedRoute>
         } />
         
@@ -193,7 +197,9 @@ function App() {
         
         <Route path="/admin-finance/assets" element={
           <ProtectedRoute department="admin-finance">
-            <AdminAssets />
+            <Layout>
+              <AdminAssets />
+            </Layout>
           </ProtectedRoute>
         } />
         
@@ -270,7 +276,9 @@ function App() {
 
         <Route path="/general/announcements" element={
           <ProtectedRoute>
-            <AnnouncementsManagement />
+            <Layout>
+              <AnnouncementsManagement />
+            </Layout>
           </ProtectedRoute>
         } />
 
@@ -327,7 +335,9 @@ function App() {
 
         <Route path="/corporate-affairs/settings" element={
           <ProtectedRoute department="corporate-affairs">
-            <CompanySettings />
+            <Layout>
+              <CompanySettings />
+            </Layout>
           </ProtectedRoute>
         } />
 
@@ -339,7 +349,9 @@ function App() {
 
         <Route path="/admin-finance/leave-management" element={
           <ProtectedRoute department="admin-finance">
-            <LeaveManagement />
+            <Layout>
+              <LeaveManagement />
+            </Layout>
           </ProtectedRoute>
         } />
 
@@ -355,20 +367,26 @@ function App() {
 
         <Route path="/general/maritime-governance-course" element={
             <ProtectedRoute>
-              <MaritimeGovernanceCourse />
+              <Layout>
+                <MaritimeGovernanceCourse />
+              </Layout>
             </ProtectedRoute>
           } />
 
         <Route path="/general/marine-casualty-course" element={
           <ProtectedRoute>
-            <MarineCasualtyCourse />
+            <Layout>
+              <MarineCasualtyCourse />
+            </Layout>
           </ProtectedRoute>
         } />
 
 
         <Route path="/general/memberships" element={
           <ProtectedRoute>
-            <Memberships />
+            <Layout>
+              <Memberships />
+            </Layout>
           </ProtectedRoute>
         } />
 
@@ -383,7 +401,9 @@ function App() {
 
           <Route path="/general/training-programs" element={
           <ProtectedRoute>
-            <TrainingPrograms />
+            <Layout>
+              <TrainingPrograms />
+            </Layout>
           </ProtectedRoute>
         } />
         

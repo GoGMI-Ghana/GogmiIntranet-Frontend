@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Package, Plus, X, Search, Eye, Archive, ArchiveRestore, Download, FileSpreadsheet, Edit, Home, ChevronRight, Monitor, Armchair, Car, Wrench, LayoutGrid } from 'lucide-react';
+import { Package, Plus, X, Search, Eye, Archive, ArchiveRestore, Download, FileSpreadsheet, Edit, Monitor, Armchair, Car, Wrench, LayoutGrid } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { apiFetch } from '../../config/api';
 
@@ -23,7 +22,6 @@ export default function AdminAssets() {
   const [editMode, setEditMode] = useState(false);
   const [editingAsset, setEditingAsset] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: '', category: '', description: '', modelNumber: '', serialNumber: '',
@@ -189,17 +187,6 @@ export default function AdminAssets() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-6 lg:p-8">
-
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm mb-6">
-          <button onClick={() => navigate('/')} className="flex items-center gap-1 text-gray-500 hover:text-gray-900">
-            <Home className="w-4 h-4" /> Dashboard
-          </button>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-          <button onClick={() => navigate('/admin-finance')} className="text-gray-500 hover:text-gray-900">Admin &amp; Finance</button>
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-900 font-medium">Assets</span>
-        </div>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
