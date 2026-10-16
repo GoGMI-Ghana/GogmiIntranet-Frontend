@@ -1,20 +1,13 @@
 import { useState, useEffect } from 'react';
-import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, MapPin, User, Calendar, Clock, Edit2, Search, Bell, Gift, Award, TrendingUp, Users, ChevronRight, Megaphone, Lock, X, AlertCircle } from 'lucide-react';
+import { LayoutGrid, DollarSign, Wrench, Building2, Briefcase, MapPin, User, Calendar, Clock, Edit2, Search, Bell, Gift, Award, TrendingUp, Users, ChevronRight, Megaphone, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { resolveFileUrl, apiFetch } from '../config/api';
-import { departmentName } from '../config/departments';
+import { departmentName, canAccessDepartment } from '../config/departments';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Department Access Modal States
-  const [showDepartmentModal, setShowDepartmentModal] = useState(false);
-  
-  
-  
-  const [verifying, setVerifying] = useState(false);
-
   // Announcements States
   const [announcements, setAnnouncements] = useState([]);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
@@ -259,53 +252,11 @@ const fetchBirthdays = async () => {
     return colors[category] || colors.General;
   };
 
-  // Department Access Handler
+  // Department Access Handler (the route guard shows "Access Restricted" for other departments)
   const handleDepartmentClick = (dept) => {
     navigate(dept.path);
   };
 
-  // Verify Department Access Code
-  const handleVerifyDepartment = async () => {
-    if (!departmentCode) {
-      setDepartmentError('Please enter the department access code');
-      return;
-    }
-
-    setVerifying(true);
-    setDepartmentError('');
-
-    try {
-     const response = await apiFetch(`/api/verify-department`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          department: selectedDepartment.id,
-          accessCode: departmentCode
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        const verifiedDepts = JSON.parse(localStorage.getItem('verifiedDepartments') || '[]');
-        if (!verifiedDepts.includes(selectedDepartment.id)) {
-          verifiedDepts.push(selectedDepartment.id);
-          localStorage.setItem('verifiedDepartments', JSON.stringify(verifiedDepts));
-        }
-        
-        setShowDepartmentModal(false);
-        navigate(selectedDepartment.path);
-      } else {
-        setDepartmentError(data.message || 'Invalid access code');
-      }
-    } catch (error) {
-      setDepartmentError('Connection error. Please try again.');
-    } finally {
-      setVerifying(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -512,7 +463,7 @@ const fetchBirthdays = async () => {
                           <span>{dept.subModules} modules available</span>
                         </div>
 
-                        {dept.id !== 'general' && (
+                        {!canAccessDepartment(userData.department, dept.id) && (
                           <div className="absolute top-4 right-4">
                             <Lock className="w-5 h-5 text-white/60" />
                           </div>
@@ -676,7 +627,7 @@ const fetchBirthdays = async () => {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-1">Quick Tip</h3>
                   <p className="text-gray-600">
-                    Click on any department card to access its specific modules and tasks. <span className="font-semibold">General department is open to all.</span> Other departments require a Department Access Code.
+                    Click on any department card to access its specific modules and tasks. <span className="font-semibold">General department is open to all.</span> Departments marked with a lock are limited to their own staff.
                   </p>
                 </div>
               </div>
@@ -685,68 +636,7 @@ const fetchBirthdays = async () => {
         </div>
       </div>
 
-      {/* Department Access Modal */}
-      {showDepartmentModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">Department Access</h3>
-              <button
-                onClick={() => setShowDepartmentModal(false)}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
 
-            <p className="text-gray-600 mb-6">
-              Enter the access code for <span className="font-semibold">{selectedDepartment?.name}</span> department
-            </p>
-
-            {departmentError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
-                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{departmentError}</p>
-              </div>
-            )}
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Department Access Code
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="password"
-                  value={departmentCode}
-                  onChange={(e) => setDepartmentCode(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleVerifyDepartment()}
-                  placeholder="Enter access code"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent focus:outline-none"
-                  disabled={verifying}
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDepartmentModal(false)}
-                className="flex-1 py-2.5 px-4 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleVerifyDepartment}
-                disabled={verifying}
-                className="flex-1 py-2.5 px-4 rounded-lg font-medium text-white transition-colors disabled:opacity-50"
-                style={{ background: 'linear-gradient(135deg, #132552 0%, #8e3400 100%)' }}
-              >
-                {verifying ? 'Verifying...' : 'Access'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

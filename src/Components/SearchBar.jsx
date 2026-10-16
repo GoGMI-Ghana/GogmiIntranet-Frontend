@@ -21,11 +21,10 @@ export default function SearchBar() {
     // General sub-modules
     { name: 'Policies', path: '/general/policies', type: 'page', icon: FileText, parent: 'General' },
     { name: 'Stakeholders', path: '/general/stakeholders', type: 'page', icon: FileText, parent: 'General' },
-    { name: 'Assets', path: '/general/assets', type: 'page', icon: FileText, parent: 'General' },
     { name: 'IMSWG', path: '/general/imswg', type: 'page', icon: FileText, parent: 'General' },
-    { name: 'Employee Data', path: '/general/employee-data', type: 'page', icon: FileText, parent: 'General' },
-    
+
     // Admin & Finance sub-modules
+    { name: 'Employee Data', path: '/admin-finance/employee-data', type: 'page', icon: FileText, parent: 'Admin & Finance' },
     { name: 'Payroll', path: '/admin-finance/payroll', type: 'page', icon: FileText, parent: 'Admin & Finance' },
     { name: 'Admin Assets', path: '/admin-finance/assets', type: 'page', icon: FileText, parent: 'Admin & Finance' },
     { name: 'Budgets', path: '/admin-finance/budgets', type: 'page', icon: FileText, parent: 'Admin & Finance' },
@@ -33,14 +32,16 @@ export default function SearchBar() {
     { name: 'HR', path: '/admin-finance/hr', type: 'page', icon: FileText, parent: 'Admin & Finance' },
     
     // Technical sub-modules
-    { name: 'Research Work', path: '/technical/research-work', type: 'page', icon: FileText, parent: 'Technical' },
-    
+    { name: 'Research', path: '/technical/research', type: 'page', icon: FileText, parent: 'Technical' },
+
     // Corporate Affairs sub-modules
+    { name: 'Assets', path: '/corporate-affairs/assets', type: 'page', icon: FileText, parent: 'Corporate Affairs' },
     { name: 'Corporate Stakeholders', path: '/corporate-affairs/stakeholders', type: 'page', icon: FileText, parent: 'Corporate Affairs' },
     { name: 'IT', path: '/corporate-affairs/it', type: 'page', icon: FileText, parent: 'Corporate Affairs' },
     
     // Directorate sub-modules
-    { name: 'Executive Management', path: '/directorate/executive-management', type: 'page', icon: FileText, parent: 'Directorate' }
+    { name: 'Executive Management', path: '/directorate/executive-management', type: 'page', icon: FileText, parent: 'Directorate' },
+    { name: 'Board of Directors', path: '/directorate/board-of-directors', type: 'page', icon: FileText, parent: 'Directorate' }
   ];
 
   // Search logic

@@ -46,6 +46,7 @@ import RegisterEmployee from './Pages/Corporate/RegisterEmployee';
 import CompanyStrategy from './Pages/Directorate/CompanyStrategy';
 import AdvisoryBoard from './Pages/Directorate/AdvisoryBoard';
 import BoardOfDirectors from './Pages/Directorate/BoardOfDirectors';
+import ExecutiveManagement from './Pages/Directorate/ExecutiveManagement';
 import CompanyPerformance from './Pages/Directorate/CompanyPerformance';
 import MOU from './Pages/General/MOU';
 import ImswgForum from './Pages/General/ImswgForum';
@@ -306,6 +307,13 @@ function App() {
           <ProtectedRoute department="directorate">
             <Layout>
               <BoardOfDirectors />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/directorate/executive-management" element={
+          <ProtectedRoute department="directorate">
+            <Layout>
+              <ExecutiveManagement />
             </Layout>
           </ProtectedRoute>
         } />
