@@ -229,7 +229,7 @@ export default function PayslipView() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 mb-8 pb-8 border-b border-gray-100">
-                <DetailRow label="PSF No" value={payslip.psfNo || 'N/A'} />
+                <DetailRow label="SSNIT No" value={payslip.psfNo || 'N/A'} />
                 <DetailRow label="Annual Salary" value={`GH₵${formatMoney(payslip.annualSalary)}`} />
               </div>
 
@@ -275,7 +275,7 @@ export default function PayslipView() {
                   <h3 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: RUST }}>Deductions</h3>
                   <div className="rounded-lg border border-gray-100 px-4 py-1 divide-y divide-gray-100">
                     {parseFloat(payslip.ssfEmployee || 0) > 0 && (
-                      <LineItem label="SSF Employee" value={payslip.ssfEmployee} />
+                      <LineItem label="SSNIT" value={payslip.ssfEmployee} />
                     )}
                     {parseFloat(payslip.incomeTax || 0) > 0 && (
                       <LineItem label="Income Tax" value={payslip.incomeTax} />

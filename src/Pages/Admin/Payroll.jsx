@@ -58,6 +58,7 @@ export default function Payroll() {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
+  // Keys must match the backend Payslip fields: ssfEmployee and psfNo are labelled "SSNIT" in the UI
   const [formData, setFormData] = useState({
     employeeId: '',
     month: '',
@@ -78,14 +79,14 @@ export default function Payroll() {
     totalSSF: '',
     employerPF: '',
     totalPF: '',
-    ssnit: '',
+    ssfEmployee: '',
     incomeTax: '',
     providentFund: '',
     loans: '',
     otherDeductions: '',
     bankName: '',
     accountNumber: '',
-    ssnitNo: '',
+    psfNo: '',
     taxableBenefits: ''
   });
 
@@ -115,14 +116,14 @@ export default function Payroll() {
       totalSSF: '',
       employerPF: '',
       totalPF: '',
-      ssnit: '',
+      ssfEmployee: '',
       incomeTax: '',
       providentFund: '',
       loans: '',
       otherDeductions: '',
       bankName: '',
       accountNumber: '',
-      ssnitNo: '',
+      psfNo: '',
       taxableBenefits: ''
     });
     setSelectedEmployee(null);
@@ -191,7 +192,7 @@ export default function Payroll() {
                     parseFloat(formData.bonus || 0) +
                     parseFloat(formData.otherAllowances || 0);
 
-    const deductions = parseFloat(formData.ssnit || 0) +
+    const deductions = parseFloat(formData.ssfEmployee || 0) +
                       parseFloat(formData.incomeTax || 0) +
                       parseFloat(formData.providentFund || 0) +
                       parseFloat(formData.loans || 0) +
@@ -375,7 +376,7 @@ export default function Payroll() {
                       <input type="number" step="0.01" name="annualSalary" value={formData.annualSalary} onChange={handleChange} className={inputClass} />
                     </Field>
                     <Field label="SSNIT No">
-                      <input type="text" name="ssnitNo" value={formData.ssnitNo} onChange={handleChange} className={inputClass} />
+                      <input type="text" name="psfNo" value={formData.psfNo} onChange={handleChange} className={inputClass} />
                     </Field>
                   </Section>
 
@@ -409,7 +410,7 @@ export default function Payroll() {
 
                   <Section title="Deductions">
                     <Field label="SSNIT">
-                      <input type="number" step="0.01" name="ssnit" value={formData.ssnit} onChange={handleChange} className={inputClass} />
+                      <input type="number" step="0.01" name="ssfEmployee" value={formData.ssfEmployee} onChange={handleChange} className={inputClass} />
                     </Field>
                     <Field label="Income Tax">
                       <input type="number" step="0.01" name="incomeTax" value={formData.incomeTax} onChange={handleChange} className={inputClass} />
