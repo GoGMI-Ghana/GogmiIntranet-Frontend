@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Users, Laptop, UserPlus, Settings, BarChart3 } from 'lucide-react';
+import { Users, Laptop, UserPlus, Settings, BarChart3, CreditCard } from 'lucide-react';
 
 export default function Corporate() {
   const navigate = useNavigate();
@@ -47,6 +47,13 @@ export default function Corporate() {
       icon: BarChart3,
       description: 'Monthly traffic reports for GoGMI websites',
       path: '/corporate-affairs/digital-analytics'
+    },
+    {
+      id: 'subscriptions',
+      name: 'Payments & Subscriptions',
+      icon: CreditCard,
+      description: 'Track services we pay for, their costs and renewal dates',
+      path: '/corporate-affairs/subscriptions'
     }
   ];
 

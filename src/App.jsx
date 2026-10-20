@@ -40,6 +40,7 @@ import CapacityBuilding from './Pages/Technical/CapacityBuilding';
 import CorporateStakeholders from './Pages/Corporate/CorporateStakeholders';
 import IT from './Pages/Corporate/IT';
 import DigitalAnalytics from './Pages/Corporate/DigitalAnalytics';
+import Subscriptions from './Pages/Corporate/Subscriptions';
 import RegisterEmployee from './Pages/Corporate/RegisterEmployee';
 
 
@@ -278,6 +279,13 @@ function App() {
           <ProtectedRoute department="corporate-affairs">
             <Layout>
               <DigitalAnalytics />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/corporate-affairs/subscriptions" element={
+          <ProtectedRoute department="corporate-affairs">
+            <Layout>
+              <Subscriptions />
             </Layout>
           </ProtectedRoute>
         } />
