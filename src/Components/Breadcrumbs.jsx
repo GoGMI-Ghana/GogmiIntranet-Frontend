@@ -25,6 +25,7 @@ export default function Breadcrumbs() {
     'research-work': 'Research Work',
     'it': 'IT',
     'digital-analytics': 'Digital Analytics',
+    'subscriptions': 'Payments & Subscriptions',
     'executive-management': 'Executive Management',
     'profile': 'My Profile',
     'settings': 'Settings',

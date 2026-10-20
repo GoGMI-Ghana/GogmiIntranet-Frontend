@@ -39,6 +39,7 @@ export default function SearchBar() {
     { name: 'Corporate Stakeholders', path: '/corporate-affairs/stakeholders', type: 'page', icon: FileText, parent: 'Corporate Affairs' },
     { name: 'IT', path: '/corporate-affairs/it', type: 'page', icon: FileText, parent: 'Corporate Affairs' },
     { name: 'Digital Analytics', path: '/corporate-affairs/digital-analytics', type: 'page', icon: FileText, parent: 'Corporate Affairs' },
+    { name: 'Payments & Subscriptions', path: '/corporate-affairs/subscriptions', type: 'page', icon: FileText, parent: 'Corporate Affairs' },
     
     // Directorate sub-modules
     { name: 'Executive Management', path: '/directorate/executive-management', type: 'page', icon: FileText, parent: 'Directorate' },
